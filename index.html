@@ -9,40 +9,63 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root{
-      --bg-beige:#F2EEE6;
-      --ink:#0E3B2E;         /* dunkelgrün */
-      --muted:#6B7A73;       /* gedämpftes grün-grau */
-      --pin:#7A0019;         /* bordeauxrot */
-      --accent:#C5B8A5;      /* sand/beige-akzent */
+      --bg:#F2EEE6;          /* Beige Grund */
+      --ink:#0E3B2E;         /* Dunkelgrün */
+      --muted:#6B7A73;       /* Gedämpftes Grün-Grau */
+      --pin:#7A0019;         /* Bordeauxrot */
       --white:#FFFFFF;
     }
-    html,body { height:100%; margin:0; font-family:Inter,system-ui,Arial; background:var(--bg-beige); color:var(--ink); }
+    html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
+    body { font-family: "Helvetica Neue", Inter, system-ui, Arial, sans-serif; }
+
     #map { width:100%; height:100vh; min-height:520px; }
 
-    /* dezente, minimalistische Tiles (entsättigt + leicht warm) */
-    .leaflet-tile{
-      filter: grayscale(100%) contrast(1.02) brightness(1.05) sepia(0.18);
-    }
-
-    /* Popup & Header-UI */
-    .leaflet-popup-content { max-width: 440px; color:var(--ink); }
-    .popup-photos { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    .popup-photos a{ display:inline-block; border-radius:8px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.12); }
-    .popup-photos img { width:160px; height:110px; object-fit:cover; display:block; }
-    .city-label { font-weight:700; margin-bottom:8px; letter-spacing:0.2px; }
+    /* Header-Panel (dezent, Chanel-like: caps + spacing) */
     .map-header {
       position:absolute; top:18px; left:18px; z-index:4000;
       background:rgba(255,255,255,0.92); color:var(--ink);
-      padding:12px 16px; border:1px solid var(--accent);
-      border-radius:12px; box-shadow:0 10px 24px rgba(14,59,46,0.10);
-      backdrop-filter: blur(2px);
+      padding:12px 16px; border-radius:12px; border:1px solid rgba(0,0,0,0.06);
+      box-shadow:0 10px 24px rgba(14,59,46,0.08); backdrop-filter: blur(2px);
     }
-    .map-header h3 { margin:0; font-size:16px; letter-spacing:0.6px; }
-    .map-header p { margin:6px 0 0; font-size:13px; color:var(--muted); }
-    @media (max-width:700px){
-      .map-header { left:12px; right:12px; padding:10px; }
-      .popup-photos img { width:140px; height:96px; }
+    .map-header h3 {
+      margin:0; font-size:15px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700;
     }
+    .map-header p { margin:6px 0 0; font-size:13px; color:var(--muted); letter-spacing:0.04em; }
+    @media (max-width:700px){ .map-header { left:12px; right:12px; padding:10px; } }
+
+    /* Minimalistische Tiles: keine Labels, sehr clean */
+    .leaflet-tile { filter: grayscale(100%) contrast(1.02) brightness(1.06) sepia(0.10); }
+
+    /* Popup */
+    .leaflet-popup-content { max-width: 560px; color:var(--ink); margin: 8px 12px; }
+    .city-label { font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin:0 0 8px; font-size:14px; }
+
+    /* Galerie (groß, swipebar) */
+    .gallery {
+      position: relative; width: 100%; max-width: 540px; height: 340px;
+      border-radius: 12px; overflow: hidden; background: #000;
+      box-shadow: 0 16px 30px rgba(0,0,0,0.18);
+      touch-action: pan-y;
+    }
+    .gallery img {
+      width:100%; height:100%; object-fit: cover; display:block; user-select:none; -webkit-user-drag:none;
+    }
+    .nav-btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      width:42px; height:42px; border-radius:999px; border:1px solid rgba(255,255,255,0.4);
+      background:rgba(0,0,0,0.25); color:#fff; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; backdrop-filter: blur(1px);
+    }
+    .nav-btn:hover{ background:rgba(0,0,0,0.35); }
+    .nav-prev{ left:10px; }
+    .nav-next{ right:10px; }
+    .nav-btn svg{ width:18px; height:18px; }
+
+    .desc { margin-top:10px; font-size:13.5px; color:var(--muted); }
+    .more-link { display:inline-block; margin-top:10px; font-size:13px; color:var(--pin); text-decoration:none; }
+
+    /* Tooltip schmal & elegant */
+    .leaflet-tooltip { background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.06); color:var(--ink); border-radius:8px; box-shadow:0 8px 18px rgba(0,0,0,0.08); }
   </style>
 </head>
 <body>
@@ -50,75 +73,66 @@
 <div id="map"></div>
 <div class="map-header">
   <h3>Buying & Fairs — European Journeys</h3>
-  <p>Drag to move, scroll to zoom. Click pins for photos and notes.</p>
+  <p>Drag to move. Scroll to zoom. Click pins to view the gallery.</p>
 </div>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  // HINWEIS: Verwende nach Möglichkeit Dateinamen ohne Leerzeichen/Umlaute.
-  // Dieser Helper encodiert Bild-URLs sicher, falls doch Leerzeichen enthalten sind.
+  // Hilfsfunktion: URL sicher encodieren (Leerzeichen etc.)
   const safe = (u) => encodeURI(u);
 
-  // Farb- und Stil-Definition für den Pin (bordeauxrot, schlanker Nadelkopf)
+  // Minimalistische, label-freie Tiles (Carto)
+  const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
+  const TILE_ATTR = '&copy; OpenStreetMap &copy; CARTO';
+
+  // Bordeauxrote, elegante Stecknadel (SVG)
   function pinSVG(size=22, color='#7A0019'){
     const s = size;
     return `
-      <svg width="${s}" height="${s*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.25"/>
-          </filter>
-        </defs>
+      <svg width="${s}" height="${s*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs>
         <path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 6.5 12.75 7.63 14.0a0.5 0.5 0 0 0 .74 0C13.5 20.75 20 13.25 20 8c0-4.42-3.58-8-8-8z" fill="${color}" filter="url(#shadow)"/>
-        <circle cx="12" cy="8" r="3.2" fill="#fff" opacity="0.85"/>
-      </svg>
-    `;
+        <circle cx="12" cy="8" r="3.2" fill="#fff" opacity="0.9"/>
+      </svg>`;
+  }
+  function createPinIcon(){
+    return L.divIcon({ className:'pin', html: pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] });
   }
 
-  // Deine Punkte — bestehende + zusätzliche aus der Liste im Screenshot
+  // Deine Punkte (Beispiele; ergänze/tausche Fotos)
   const points = [
-    // Deine bisherigen Beispiele (Fotos bitte anpassen)
     {
       id: "milan2023",
-      city: "Milano",
-      country: "Italy",
-      lat: 45.4668, lng: 9.1905,
-      title: "Milano Moda",
-      year: "2023",
-      photos: [safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg")],
+      city: "Milano", country: "Italy", lat: 45.4668, lng: 9.1905,
+      title: "Milano Moda", year: "2023",
+      photos: [ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
       description: "Trend scouting, sustainable yarns and functional fabrics."
     },
     {
       id: "paris_pv_2022",
-      city: "Paris",
-      country: "France",
-      lat: 48.8566, lng: 2.3522,
-      title: "Première Vision",
-      year: "2022",
-      photos: ["photos/paris1.jpg"].map(safe),
+      city: "Paris", country: "France", lat: 48.8566, lng: 2.3522,
+      title: "Première Vision", year: "2022",
+      photos: [ safe("photos/paris1.jpg") ],
       description: "Sourcing, material research, new finishes."
     },
     {
       id: "mfs_2024",
-      city: "München",
-      country: "Germany",
-      lat: 48.1351, lng: 11.5820,
-      title: "Munich Fabric Start",
-      year: "2024",
-      photos: ["photos/munich1.jpg","photos/munich2.jpg"].map(safe),
+      city: "München", country: "Germany", lat: 48.1351, lng: 11.5820,
+      title: "Munich Fabric Start", year: "2024",
+      photos: [ safe("photos/munich1.jpg"), safe("photos/munich2.jpg") ],
       description: "Functional outerwear fabrics and coatings."
     },
-    // Zusätzliche Events aus deiner Liste (Jahre beispielhaft aus der Timeline, passe gern an)
+    // Ergänzte Events aus deiner Liste (Fotos später hinzufügen)
     { id:"riva_2023",  city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841, title:"Expo Riva Shoe",    year:"2023", photos:[], description:"Footwear sourcing and trends." },
-    { id:"pitti_2023", city:"Florenz",        country:"Italy", lat:43.7696, lng:11.2558, title:"Pitti Uomo",       year:"2023", photos:[], description:"Menswear collections, tailoring." },
-    { id:"cosmoprof_2022", city:"Bologna",    country:"Italy", lat:44.4949, lng:11.3426, title:"COSMOPROF",        year:"2022", photos:[], description:"Beauty innovations and packaging." },
-    { id:"cosmopack_2022", city:"Bologna",    country:"Italy", lat:44.4949, lng:11.3426, title:"COSMOPACK",        year:"2022", photos:[], description:"Packaging, materials, processes." },
-    { id:"maisonobjet_paris", city:"Paris",   country:"France",lat:48.8566, lng:2.3522,  title:"Maison&Objet",     year:"2022", photos:[], description:"Home, lifestyle & material mood." },
-    { id:"micam_milan", city:"Milano",        country:"Italy", lat:45.4668, lng:9.1905,  title:"MICAM",            year:"2021", photos:[], description:"Footwear international trade fair." },
-    { id:"pitti_100_2021", city:"Florenz",    country:"Italy", lat:43.7696, lng:11.2558, title:"Pitti Uomo 100",   year:"2021", photos:[], description:"Centenary edition highlights." },
-    { id:"nordstil_hh", city:"Hamburg",       country:"Germany",lat:53.5511,lng:9.9937,  title:"NORDSTIL",         year:"2021", photos:[], description:"Lifestyle & retail concepts." },
+    { id:"pitti_2023", city:"Florenz",        country:"Italy", lat:43.7696,lng:11.2558, title:"Pitti Uomo",       year:"2023", photos:[], description:"Menswear collections, tailoring." },
+    { id:"cosmoprof_2022", city:"Bologna",    country:"Italy", lat:44.4949,lng:11.3426, title:"COSMOPROF",        year:"2022", photos:[], description:"Beauty innovations and packaging." },
+    { id:"cosmopack_2022", city:"Bologna",    country:"Italy", lat:44.4949,lng:11.3426, title:"COSMOPACK",        year:"2022", photos:[], description:"Packaging, materials, processes." },
+    { id:"maisonobjet_paris", city:"Paris",   country:"France",lat:48.8566,lng:2.3522,  title:"Maison&Objet",     year:"2022", photos:[], description:"Home, lifestyle & material mood." },
+    { id:"micam_milan", city:"Milano",        country:"Italy", lat:45.4668,lng:9.1905,  title:"MICAM",            year:"2021", photos:[], description:"Footwear international trade fair." },
+    { id:"pitti_100_2021", city:"Florenz",    country:"Italy", lat:43.7696,lng:11.2558, title:"Pitti Uomo 100",   year:"2021", photos:[], description:"Centenary edition highlights." },
+    { id:"nordstil_hh", city:"Hamburg",       country:"Germany",lat:53.5511,lng:9.9937, title:"NORDSTIL",         year:"2021", photos:[], description:"Lifestyle & retail concepts." },
     { id:"ciff_cph",    city:"Kopenhagen",    country:"Denmark",lat:55.6761,lng:12.5683, title:"CIFF",             year:"2020", photos:[], description:"Copenhagen Int. Fashion Fair." },
     { id:"supreme_dus", city:"Düsseldorf",    country:"Germany",lat:51.2277,lng:6.7735,  title:"Supreme Women&Men",year:"2020", photos:[], description:"Women & men collections." },
     { id:"tranoi_paris_2020", city:"Paris",   country:"France", lat:48.8566,lng:2.3522,  title:"TRANOÏ",           year:"2020", photos:[], description:"Curated designer showcases." },
@@ -132,7 +146,7 @@
     { id:"panorama_berlin_2017", city:"Berlin", country:"Germany", lat:52.52,lng:13.405, title:"Panorama Berlin",  year:"2017", photos:[], description:"Fashion trade show." }
   ];
 
-  // Karte initialisieren
+  /* --------- Karte Initialisieren --------- */
   const map = L.map('map', {
     center: [50.0, 10.0],
     zoom: 4,
@@ -142,57 +156,96 @@
     scrollWheelZoom: true,
     tap: true
   });
+  L.tileLayer(TILE_URL, { attribution: TILE_ATTR, noWrap:false }).addTo(map);
 
-  // Schlichte OSM Tiles (wir filtern sie per CSS, siehe oben)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    noWrap: false
-  }).addTo(map);
+  /* --------- Marker + Popup mit Galerie --------- */
+  function popupHTML(pt){
+    const titleLine = `${pt.title || pt.city}${pt.year ? ' — ' + pt.year : ''}`;
+    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : '';
+    return `
+      <div>
+        <div class="city-label">${titleLine}</div>
+        <div class="gallery" data-id="${pt.id}">
+          ${ first ? `<img src="${first}" alt="${pt.city}" />` : `<img src="https://picsum.photos/1000/700?grayscale" alt="placeholder" />` }
+          <button class="nav-btn nav-prev" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          </button>
+          <button class="nav-btn nav-next" aria-label="Next">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="m8.59 16.59 1.41 1.41L16 12l-5.99-6-1.42 1.41L13.17 12z"/></svg>
+          </button>
+        </div>
+        <div class="desc">${pt.description || ''}</div>
+        <a class="more-link" href="/work/buying-and-fairs/${pt.id}">Mehr zum Besuch</a>
+      </div>
+    `;
+  }
 
-  // Custom Pin als divIcon mit SVG (bordeaux-rot)
-  function createPinIcon(){
-    return L.divIcon({
-      className: 'pin',
-      html: pinSVG(22, getComputedStyle(document.documentElement).getPropertyValue('--pin').trim() || '#7A0019'),
-      iconSize: [22,28],
-      iconAnchor: [11,24],
-      popupAnchor: [0,-20]
+  // pro Marker separater Index für die Galerie
+  const galleryIndex = new Map(); // id -> idx
+
+  function bindGalleryHandlers(container, photos, id){
+    const img = container.querySelector('.gallery img');
+    const prev = container.querySelector('.nav-prev');
+    const next = container.querySelector('.nav-next');
+    const arr = (photos || []).map(safe);
+    if(!galleryIndex.has(id)) galleryIndex.set(id, 0);
+
+    function render(){
+      if(!arr.length) return; // placeholder bleibt
+      const i = galleryIndex.get(id) % arr.length;
+      img.src = arr[i];
+    }
+    function go(delta){
+      if(!arr.length) return;
+      let i = galleryIndex.get(id);
+      i = (i + delta + arr.length) % arr.length;
+      galleryIndex.set(id, i);
+      render();
+    }
+    prev.addEventListener('click', e => { e.stopPropagation(); go(-1); });
+    next.addEventListener('click', e => { e.stopPropagation(); go(1); });
+
+    // Touch-Swipe
+    let startX = null;
+    container.querySelector('.gallery').addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+    }, {passive:true});
+    container.querySelector('.gallery').addEventListener('touchend', e => {
+      if(startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if(Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+      startX = null;
     });
+
+    render();
   }
 
   points.forEach(pt => {
-    const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon() }).addTo(map);
+    const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon(), custom: { pt } }).addTo(map);
 
-    // Tooltip
     marker.bindTooltip(`${pt.city}`, {permanent:false, direction:'top', offset:[0,-12], opacity:0.95});
 
-    // Popup (größer, Bilder klickbar)
-    marker.on('click', () => {
-      const photoHtml = (pt.photos || [])
-        .slice(0,6) // bis zu 6 Bilder anzeigen
-        .map(src => {
-          const url = safe(src);
-          return `<a href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="${pt.city}"/></a>`;
-        })
-        .join('');
-      const popupContent = `
-        <div>
-          <div class="city-label">${pt.title}${pt.year ? ' — ' + pt.year : ''}</div>
-          <div style="font-size:13.5px;color:var(--muted);">${pt.description || ''}</div>
-          <div class="popup-photos">${photoHtml}</div>
-          <a href="/work/buying-and-fairs/${pt.id}" style="display:inline-block;margin-top:10px;font-size:13px;color:${getComputedStyle(document.documentElement).getPropertyValue('--pin').trim()};text-decoration:none;">Mehr zum Besuch</a>
-        </div>`;
-      marker.bindPopup(popupContent, {maxWidth:460}).openPopup();
+    // Popup EINMAL binden, dann immer wieder öffnen (beliebig oft klickbar)
+    marker.bindPopup(popupHTML(pt), { maxWidth: 600, closeOnClick: true, autoClose: true });
+
+    // Beim Öffnen die Galerie-Controls an die DOM der aktuellen Popup-Instanz hängen
+    marker.on('popupopen', (e) => {
+      const el = e.popup.getElement();
+      // Container ist erst NACH open im DOM
+      requestAnimationFrame(() => {
+        const wrap = el.querySelector('.leaflet-popup-content');
+        if (wrap) bindGalleryHandlers(wrap, pt.photos, pt.id);
+      });
     });
+
+    // Klick öffnet immer das Popup (auch mehrfach)
+    marker.on('click', () => marker.openPopup());
   });
 
-  // Bestes Viewport-Fit
+  // Bestmöglicher Ausschnitt
   const latlngs = points.map(p => [p.lat, p.lng]);
   const bounds = L.latLngBounds(latlngs);
   map.fitBounds(bounds.pad(0.25));
-
-  // Tastatur-Fokus
-  map.on('click', () => map.getContainer().focus());
 </script>
 </body>
 </html>
