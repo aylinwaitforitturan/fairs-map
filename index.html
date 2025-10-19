@@ -14,15 +14,16 @@
       --muted:#6B7A73;       /* Gedämpftes Grün-Grau */
       --pin:#7A0019;         /* Bordeauxrot */
       --white:#FFFFFF;
+      --border:#9BA8A2;      /* feine Landesgrenzen */
+      --hover:#E7E1D6;       /* Hover-Füllung */
     }
     html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
     body { font-family: "Helvetica Neue", Inter, system-ui, Arial, sans-serif; }
 
     #map { width:100%; height:100vh; min-height:520px; }
 
-    /* Header-Panel (dezent, Chanel-like: caps + spacing) */
     .map-header {
-      position:absolute; top:18px; left:18px; z-index:4000;
+      position:absolute; top:18px; left:18px; z-index:800;
       background:rgba(255,255,255,0.92); color:var(--ink);
       padding:12px 16px; border-radius:12px; border:1px solid rgba(0,0,0,0.06);
       box-shadow:0 10px 24px rgba(14,59,46,0.08); backdrop-filter: blur(2px);
@@ -33,16 +34,18 @@
     .map-header p { margin:6px 0 0; font-size:13px; color:var(--muted); letter-spacing:0.04em; }
     @media (max-width:700px){ .map-header { left:12px; right:12px; padding:10px; } }
 
-    /* Minimalistische Tiles: keine Labels, sehr clean */
-    .leaflet-tile { filter: grayscale(100%) contrast(1.02) brightness(1.06) sepia(0.10); }
+    /* Tiles clean/minimal (die Label-Ebene kommt separat) */
+    .leaflet-tile { filter: grayscale(100%) contrast(1.04) brightness(1.06) sepia(0.08); }
 
     /* Popup */
-    .leaflet-popup-content { max-width: 560px; color:var(--ink); margin: 8px 12px; }
+    .leaflet-popup-content { max-width: 600px; color:var(--ink); margin: 8px 12px; }
     .city-label { font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin:0 0 8px; font-size:14px; }
+    .meta { display:flex; gap:12px; font-size:12.5px; color:var(--muted); margin:0 0 10px; }
+    .meta span { white-space:nowrap; }
 
     /* Galerie (groß, swipebar) */
     .gallery {
-      position: relative; width: 100%; max-width: 540px; height: 340px;
+      position: relative; width: 100%; max-width: 560px; height: 360px;
       border-radius: 12px; overflow: hidden; background: #000;
       box-shadow: 0 16px 30px rgba(0,0,0,0.18);
       touch-action: pan-y;
@@ -52,7 +55,7 @@
     }
     .nav-btn{
       position:absolute; top:50%; transform:translateY(-50%);
-      width:42px; height:42px; border-radius:999px; border:1px solid rgba(255,255,255,0.4);
+      width:44px; height:44px; border-radius:999px; border:1px solid rgba(255,255,255,0.4);
       background:rgba(0,0,0,0.25); color:#fff; display:flex; align-items:center; justify-content:center;
       cursor:pointer; backdrop-filter: blur(1px);
     }
@@ -61,11 +64,23 @@
     .nav-next{ right:10px; }
     .nav-btn svg{ width:18px; height:18px; }
 
-    .desc { margin-top:10px; font-size:13.5px; color:var(--muted); }
-    .more-link { display:inline-block; margin-top:10px; font-size:13px; color:var(--pin); text-decoration:none; }
+    .desc { margin-top:10px; font-size:13.5px; color:var(--muted); line-height:1.5; }
 
-    /* Tooltip schmal & elegant */
-    .leaflet-tooltip { background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.06); color:var(--ink); border-radius:8px; box-shadow:0 8px 18px rgba(0,0,0,0.08); }
+    .logo-row{
+      margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .logo-row img, .logo-ph {
+      width:84px; height:40px; object-fit:contain; background:#fff; border:1px solid #E3DED5; border-radius:8px;
+      box-shadow:0 6px 14px rgba(0,0,0,0.06);
+    }
+    .logo-ph{ display:flex; align-items:center; justify-content:center; color:#B6B0A4; font-size:11px; letter-spacing:0.06em; }
+
+    .more-link { display:inline-block; margin-top:12px; font-size:13px; color:var(--pin); text-decoration:none; }
+
+    /* Labels-Pane über allem, nicht klickbar */
+    .leaflet-pane.leaflet-labels-pane { z-index: 650; pointer-events: none; }
+    /* Länder-Grenzen-Pane */
+    .leaflet-pane.country-borders { z-index: 400; }
   </style>
 </head>
 <body>
@@ -80,14 +95,72 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  // Hilfsfunktion: URL sicher encodieren (Leerzeichen etc.)
   const safe = (u) => encodeURI(u);
 
-  // Minimalistische, label-freie Tiles (Carto)
-  const TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
-  const TILE_ATTR = '&copy; OpenStreetMap &copy; CARTO';
+  /* ---------- Karte & Layer ---------- */
+  const map = L.map('map', {
+    center: [50.0, 10.0],
+    zoom: 4,
+    minZoom: 3,
+    maxZoom: 12,
+    dragging: true,
+    scrollWheelZoom: true,
+    tap: true
+  });
 
-  // Bordeauxrote, elegante Stecknadel (SVG)
+  // Basemap ohne Labels
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    noWrap:false
+  }).addTo(map);
+
+  // Labels-Overlay (Länder- und Städtebeschriftungen)
+  map.createPane('labels');
+  map.getPane('labels').classList.add('leaflet-labels-pane');
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    pane: 'labels'
+  }).addTo(map);
+
+  // Ländergrenzen (GeoJSON) – für Kontrast + Hover
+  map.createPane('country-borders');
+  map.getPane('country-borders').classList.add('country-borders');
+
+  // Welt-GeoJSON (wir filtern in der Karte auf Europa via Bounding Box)
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(r => r.json())
+    .then(geo => {
+      const style = {
+        color: getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#9BA8A2',
+        weight: 0.8,
+        opacity: 0.9,
+        fillColor: '#000',
+        fillOpacity: 0.02
+      };
+      const hoverStyle = {
+        weight: 1.4,
+        fillOpacity: 0.10,
+        fillColor: getComputedStyle(document.documentElement).getPropertyValue('--hover').trim() || '#E7E1D6'
+      };
+
+      const layer = L.geoJSON(geo, {
+        pane: 'country-borders',
+        style: (f) => style,
+        onEachFeature: (feature, layer) => {
+          // Nur Features im groben Europa-Ausschnitt interaktiv halten (schneller)
+          const b = layer.getBounds();
+          if (b && (b.getSouth() > 35 && b.getNorth() < 72 && b.getWest() < 35 && b.getEast() > -25)) {
+            layer.on('mouseover', () => layer.setStyle(hoverStyle));
+            layer.on('mouseout',  () => layer.setStyle(style));
+          } else {
+            layer.options.interactive = false;
+          }
+        }
+      }).addTo(map);
+    })
+    .catch(console.error);
+
+  /* ---------- Pins ---------- */
   function pinSVG(size=22, color='#7A0019'){
     const s = size;
     return `
@@ -101,72 +174,105 @@
     return L.divIcon({ className:'pin', html: pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] });
   }
 
-  // Deine Punkte (Beispiele; ergänze/tausche Fotos)
+  /* ---------- Datenpunkte: Fotos, Logos, Metadaten ---------- */
   const points = [
     {
       id: "milan2023",
       city: "Milano", country: "Italy", lat: 45.4668, lng: 9.1905,
-      title: "Milano Moda", year: "2023",
+      title: "Milano Moda", date: "06.2023",
       photos: [ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
-      description: "Trend scouting, sustainable yarns and functional fabrics."
+      description: "Trend scouting zu Funktionsgeweben, veredelten Oberflächen und nachhaltigen Garnen. Fokus: langlebige Qualität, Haptik, Performance.",
+      logos: [ /* Beispiel: "photos/logo_a.png","photos/logo_b.png" */ ]
     },
     {
       id: "paris_pv_2022",
       city: "Paris", country: "France", lat: 48.8566, lng: 2.3522,
-      title: "Première Vision", year: "2022",
+      title: "Première Vision", date: "02.2022",
       photos: [ safe("photos/paris1.jpg") ],
-      description: "Sourcing, material research, new finishes."
+      description: "Sourcing & Materialforschung: Fasern, Web- & Strickwaren, Finishes, Farbkarten. Austausch mit Lieferanten über Zertifizierungen.",
+      logos: []
     },
     {
       id: "mfs_2024",
       city: "München", country: "Germany", lat: 48.1351, lng: 11.5820,
-      title: "Munich Fabric Start", year: "2024",
+      title: "Munich Fabric Start", date: "09.2024",
       photos: [ safe("photos/munich1.jpg"), safe("photos/munich2.jpg") ],
-      description: "Functional outerwear fabrics and coatings."
+      description: "Functional Outerwear: Laminierungen, Beschichtungen, Abrieb- & Hydrostatik-Performance für langlebige Anwendungen.",
+      logos: []
     },
-    // Ergänzte Events aus deiner Liste (Fotos später hinzufügen)
-    { id:"riva_2023",  city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841, title:"Expo Riva Shoe",    year:"2023", photos:[], description:"Footwear sourcing and trends." },
-    { id:"pitti_2023", city:"Florenz",        country:"Italy", lat:43.7696,lng:11.2558, title:"Pitti Uomo",       year:"2023", photos:[], description:"Menswear collections, tailoring." },
-    { id:"cosmoprof_2022", city:"Bologna",    country:"Italy", lat:44.4949,lng:11.3426, title:"COSMOPROF",        year:"2022", photos:[], description:"Beauty innovations and packaging." },
-    { id:"cosmopack_2022", city:"Bologna",    country:"Italy", lat:44.4949,lng:11.3426, title:"COSMOPACK",        year:"2022", photos:[], description:"Packaging, materials, processes." },
-    { id:"maisonobjet_paris", city:"Paris",   country:"France",lat:48.8566,lng:2.3522,  title:"Maison&Objet",     year:"2022", photos:[], description:"Home, lifestyle & material mood." },
-    { id:"micam_milan", city:"Milano",        country:"Italy", lat:45.4668,lng:9.1905,  title:"MICAM",            year:"2021", photos:[], description:"Footwear international trade fair." },
-    { id:"pitti_100_2021", city:"Florenz",    country:"Italy", lat:43.7696,lng:11.2558, title:"Pitti Uomo 100",   year:"2021", photos:[], description:"Centenary edition highlights." },
-    { id:"nordstil_hh", city:"Hamburg",       country:"Germany",lat:53.5511,lng:9.9937, title:"NORDSTIL",         year:"2021", photos:[], description:"Lifestyle & retail concepts." },
-    { id:"ciff_cph",    city:"Kopenhagen",    country:"Denmark",lat:55.6761,lng:12.5683, title:"CIFF",             year:"2020", photos:[], description:"Copenhagen Int. Fashion Fair." },
-    { id:"supreme_dus", city:"Düsseldorf",    country:"Germany",lat:51.2277,lng:6.7735,  title:"Supreme Women&Men",year:"2020", photos:[], description:"Women & men collections." },
-    { id:"tranoi_paris_2020", city:"Paris",   country:"France", lat:48.8566,lng:2.3522,  title:"TRANOÏ",           year:"2020", photos:[], description:"Curated designer showcases." },
-    { id:"topdrawer_ldn", city:"London",      country:"UK",     lat:51.5072,lng:-0.1276, title:"Top Drawer",       year:"2019", photos:[], description:"Design-led retail show." },
-    { id:"whosnext_paris", city:"Paris",      country:"France", lat:48.8566,lng:2.3522,  title:"Who's Next",       year:"2019", photos:[], description:"Fashion & accessories." },
-    { id:"tranoi_paris_2019", city:"Paris",   country:"France", lat:48.8566,lng:2.3522,  title:"TRANOÏ",           year:"2019", photos:[], description:"Designer presentations." },
-    { id:"maisonobjet_paris_2019", city:"Paris", country:"France", lat:48.8566,lng:2.3522,title:"Maison&Objet",    year:"2019", photos:[], description:"Home & object design." },
-    { id:"micam_milan_2018", city:"Milano",   country:"Italy",  lat:45.4668,lng:9.1905,  title:"MICAM",            year:"2018", photos:[], description:"Footwear fair." },
-    { id:"fashiontech_berlin", city:"Berlin", country:"Germany",lat:52.52,  lng:13.405,  title:"FASHIONTECH",      year:"2018", photos:[], description:"Tech x fashion." },
-    { id:"seek_berlin", city:"Berlin",       country:"Germany", lat:52.52,  lng:13.405,  title:"SEEK",             year:"2018", photos:[], description:"Contemporary trade show." },
-    { id:"panorama_berlin_2017", city:"Berlin", country:"Germany", lat:52.52,lng:13.405, title:"Panorama Berlin",  year:"2017", photos:[], description:"Fashion trade show." }
+    { id:"riva_2023",  city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
+      title:"Expo Riva Shoe", date:"06.2023",
+      photos:[], description:"Internationale Schuhmesse: Komponenten, Oberleder, nachhaltige Alternativen, Lieferantengespräche.", logos:[] },
+    { id:"pitti_2023", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      title:"Pitti Uomo", date:"06.2023",
+      photos:[], description:"Menswear-Kollektionen, Tailoring, Accessoires. Benchmarking von Qualität, Verarbeitung, Branding.", logos:[] },
+    { id:"cosmoprof_2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      title:"COSMOPROF", date:"04.2022",
+      photos:[], description:"Beauty & Packaging Innovations, Duft- und Texturwelten für Material-Inspirationen.", logos:[] },
+    { id:"cosmopack_2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      title:"COSMOPACK", date:"04.2022",
+      photos:[], description:"Verpackung, Produktionsprozesse, Materialkreisläufe. Fokus: Recycling & Premium-Finish.", logos:[] },
+    { id:"maisonobjet_paris", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
+      title:"Maison&Objet", date:"03.2022",
+      photos:[], description:"Interieur, Lifestyle, Material-Moods. Farb- und Oberflächentrends.", logos:[] },
+    { id:"micam_milan", city:"Milano", country:"Italy", lat:45.4668, lng:9.1905,
+      title:"MICAM", date:"09.2021",
+      photos:[], description:"Internationale Schuhmesse: Komponenten, Obermaterialien, Brand-Showcases.", logos:[] },
+    { id:"pitti_100_2021", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      title:"Pitti Uomo 100", date:"07.2021",
+      photos:[], description:"Jubiläumsausgabe. Fokus auf Heritage, Schnitttechnik, Stoffqualität.", logos:[] },
+    { id:"nordstil_hh", city:"Hamburg", country:"Germany", lat:53.5511, lng:9.9937,
+      title:"NORDSTIL", date:"07.2021",
+      photos:[], description:"Lifestyle- & Retail-Konzepte, Deko & Gifting. Impulse für POS & VM.", logos:[] },
+    { id:"ciff_cph", city:"Kopenhagen", country:"Denmark", lat:55.6761, lng:12.5683,
+      title:"CIFF", date:"02.2020",
+      photos:[], description:"Copenhagen Int. Fashion Fair – Marken, nachhaltige Initiativen, skandinavische Materialästhetik.", logos:[] },
+    { id:"supreme_dus", city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
+      title:"Supreme Women&Men", date:"07.2020",
+      photos:[], description:"Women & Men Showrooms; Order-Termine, Qualitäten, Preislisten.", logos:[] },
+    { id:"tranoi_paris_2020", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
+      title:"TRANOÏ", date:"01.2020",
+      photos:[], description:"Kuratiertes Designer-Line-up, Material- & Branding-Inspiration.", logos:[] },
+    { id:"topdrawer_ldn", city:"London", country:"United Kingdom", lat:51.5072, lng:-0.1276,
+      title:"Top Drawer", date:"09.2019",
+      photos:[], description:"Design-led Retail; VM-Konzepte, Packaging, neue Nischenlabels.", logos:[] },
+    { id:"whosnext_paris", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
+      title:"Who's Next", date:"09.2019",
+      photos:[], description:"Fashion & Accessories; Marktüberblick, Brand-Mix, Preispunkte.", logos:[] },
+    { id:"tranoi_paris_2019", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
+      title:"TRANOÏ", date:"09.2019",
+      photos:[], description:"Designer-Präsentationen; Materialinnovationen & kreative Prozesse.", logos:[] },
+    { id:"maisonobjet_paris_2019", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
+      title:"Maison&Objet", date:"01.2019",
+      photos:[], description:"Home & Object; Oberflächen, Handwerk, Farbklimata.", logos:[] },
+    { id:"micam_milan_2018", city:"Milano", country:"Italy", lat:45.4668, lng:9.1905,
+      title:"MICAM", date:"09.2018",
+      photos:[], description:"Footwear; Komponenten, Sohlen, Oberleder.", logos:[] },
+    { id:"fashiontech_berlin", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      title:"FASHIONTECH", date:"07.2018",
+      photos:[], description:"Tech x Fashion; Digitalisierung, Materialien, Prozesse.", logos:[] },
+    { id:"seek_berlin", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      title:"SEEK", date:"01.2018",
+      photos:[], description:"Contemporary Market; Marken, Qualität, Order.", logos:[] },
+    { id:"panorama_berlin_2017", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      title:"Panorama Berlin", date:"01.2017",
+      photos:[], description:"Fashion Trade Show; Segmentierung, Preisgefüge, Kontakte.", logos:[] }
   ];
 
-  /* --------- Karte Initialisieren --------- */
-  const map = L.map('map', {
-    center: [50.0, 10.0],
-    zoom: 4,
-    minZoom: 3,
-    maxZoom: 12,
-    dragging: true,
-    scrollWheelZoom: true,
-    tap: true
-  });
-  L.tileLayer(TILE_URL, { attribution: TILE_ATTR, noWrap:false }).addTo(map);
-
-  /* --------- Marker + Popup mit Galerie --------- */
+  /* ---------- Popup mit Galerie, Metadaten & Logos ---------- */
   function popupHTML(pt){
-    const titleLine = `${pt.title || pt.city}${pt.year ? ' — ' + pt.year : ''}`;
-    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : '';
+    const title = `${pt.title || pt.city}`;
+    const meta = `<div class="meta"><span>${pt.city}, ${pt.country}</span><span>${pt.date || ''}</span></div>`;
+    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : 'https://picsum.photos/1200/800?grayscale';
+    const logos = (pt.logos && pt.logos.length)
+      ? pt.logos.map(l => `<img src="${safe(l)}" alt="logo" />`).join('')
+      : `<div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div>`;
     return `
       <div>
-        <div class="city-label">${titleLine}</div>
+        <div class="city-label">${title}</div>
+        ${meta}
         <div class="gallery" data-id="${pt.id}">
-          ${ first ? `<img src="${first}" alt="${pt.city}" />` : `<img src="https://picsum.photos/1000/700?grayscale" alt="placeholder" />` }
+          <img src="${first}" alt="${pt.city}" />
           <button class="nav-btn nav-prev" aria-label="Previous">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
           </button>
@@ -175,13 +281,13 @@
           </button>
         </div>
         <div class="desc">${pt.description || ''}</div>
+        <div class="logo-row">${logos}</div>
         <a class="more-link" href="/work/buying-and-fairs/${pt.id}">Mehr zum Besuch</a>
       </div>
     `;
   }
 
-  // pro Marker separater Index für die Galerie
-  const galleryIndex = new Map(); // id -> idx
+  const galleryIndex = new Map(); // id -> aktueller Bildindex
 
   function bindGalleryHandlers(container, photos, id){
     const img = container.querySelector('.gallery img');
@@ -191,7 +297,7 @@
     if(!galleryIndex.has(id)) galleryIndex.set(id, 0);
 
     function render(){
-      if(!arr.length) return; // placeholder bleibt
+      if(!arr.length) return;
       const i = galleryIndex.get(id) % arr.length;
       img.src = arr[i];
     }
@@ -207,9 +313,7 @@
 
     // Touch-Swipe
     let startX = null;
-    container.querySelector('.gallery').addEventListener('touchstart', e => {
-      startX = e.touches[0].clientX;
-    }, {passive:true});
+    container.querySelector('.gallery').addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
     container.querySelector('.gallery').addEventListener('touchend', e => {
       if(startX === null) return;
       const dx = e.changedTouches[0].clientX - startX;
@@ -220,32 +324,28 @@
     render();
   }
 
+  /* ---------- Marker & Popups ---------- */
   points.forEach(pt => {
     const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon(), custom: { pt } }).addTo(map);
-
     marker.bindTooltip(`${pt.city}`, {permanent:false, direction:'top', offset:[0,-12], opacity:0.95});
+    marker.bindPopup(popupHTML(pt), { maxWidth: 640, closeOnClick: true, autoClose: true });
 
-    // Popup EINMAL binden, dann immer wieder öffnen (beliebig oft klickbar)
-    marker.bindPopup(popupHTML(pt), { maxWidth: 600, closeOnClick: true, autoClose: true });
-
-    // Beim Öffnen die Galerie-Controls an die DOM der aktuellen Popup-Instanz hängen
     marker.on('popupopen', (e) => {
       const el = e.popup.getElement();
-      // Container ist erst NACH open im DOM
       requestAnimationFrame(() => {
         const wrap = el.querySelector('.leaflet-popup-content');
         if (wrap) bindGalleryHandlers(wrap, pt.photos, pt.id);
       });
     });
-
-    // Klick öffnet immer das Popup (auch mehrfach)
-    marker.on('click', () => marker.openPopup());
+    marker.on('click', () => marker.openPopup()); // mehrfach klickbar
   });
 
   // Bestmöglicher Ausschnitt
   const latlngs = points.map(p => [p.lat, p.lng]);
-  const bounds = L.latLngBounds(latlngs);
-  map.fitBounds(bounds.pad(0.25));
+  if(latlngs.length){
+    const bounds = L.latLngBounds(latlngs);
+    map.fitBounds(bounds.pad(0.25));
+  }
 </script>
 </body>
 </html>
