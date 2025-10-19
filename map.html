@@ -9,11 +9,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- React (UMD) + Babel for inline JSX -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <style>
     :root{
       --bg:#F2EEE6;
@@ -40,7 +35,7 @@
     .map-header h3{ margin:0; font-size:15px; letter-spacing:.12em; text-transform:uppercase; font-weight:800; }
     .map-header p{ margin:6px 0 0; font-size:13px; color:var(--muted); }
 
-    /* City Guide (left) */
+    /* City Guide (left center) */
     .legend{
       position:fixed; left:18px; top:50%; transform:translateY(-50%);
       width:320px; z-index:850; background:var(--panel);
@@ -60,18 +55,18 @@
     .stars svg{ width:16px; height:16px; }
     .stars path{ fill:var(--star); }
 
-    /* Timeline (right) */
+    /* Timeline (right middle) */
     .timeline{ position:fixed; right:18px; top:50%; transform:translateY(-50%); height:78vh; width:120px; z-index:820; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between; align-items:center; }
     .timeline .line{ position:absolute; left:50%; transform:translateX(-50%); width:1px; height:100%; background:rgba(0,0,0,.08); }
     .timeline .year{ font-size:52px; letter-spacing:.05em; font-weight:300; color:rgba(0,0,0,.08); transition: color .25s, transform .25s; user-select:none; }
     .timeline .year.active{ color:rgba(0,0,0,.20); transform:scale(1.06); }
 
-    /* Leaflet look */
+    /* Leaflet minimal visual */
     .leaflet-tile{ filter: grayscale(100%) contrast(1.02) brightness(1.06) sepia(.08); }
     .leaflet-labels-pane{ opacity:.82; }
     .leaflet-tooltip{ background:rgba(255,255,255,.92); border:1px solid rgba(0,0,0,.06); color:var(--ink); border-radius:8px; box-shadow:0 8px 18px rgba(0,0,0,.08); }
 
-    /* Country hover */
+    /* Hover country */
     .hovered-country{ fill:var(--hover)!important; fill-opacity:.26!important; stroke:#333!important; stroke-width:1.9!important; filter: drop-shadow(0 2px 6px rgba(0,0,0,.18)); transform: scale(1.02); transform-origin:center; transition: transform .18s ease, fill-opacity .18s ease, stroke-width .18s ease; }
 
     /* Popup / Gallery */
@@ -84,6 +79,7 @@
     @keyframes ken{ 0%{ transform: scale(1) translate3d(0,0,0);} 100%{ transform: scale(1.08) translate3d(2%,-2%,0);} }
     .nav-btn{ position:absolute; top:50%; transform:translateY(-50%); width:46px; height:46px; border-radius:999px; border:1px solid rgba(255,255,255,.4); background:rgba(0,0,0,.25); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
     .nav-prev{ left:12px; } .nav-next{ right:12px; }
+
     .desc{ margin-top:12px; font-size:13.8px; color:var(--muted); line-height:1.55; }
     .info-row{ display:flex; gap:22px; margin:12px 0 16px; flex-wrap:wrap; }
     .info-item{ display:flex; flex-direction:column; min-width:220px; }
@@ -95,30 +91,27 @@
     .logo-row img,.logo-ph{ width:100px; height:44px; object-fit:contain; background:#fff; border:1px solid #E3DED5; border-radius:8px; box-shadow:0 6px 14px rgba(0,0,0,.06); }
     .logo-ph{ display:flex; align-items:center; justify-content:center; color:#B6B0A4; font-size:11px; letter-spacing:.06em; }
 
-    /* Route & plane */
+    /* route & plane */
     .route{ stroke:#111; stroke-opacity:.45; stroke-width:2; stroke-dasharray:6 6; }
     .plane{ filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
 
-    /* React Lanyard mount (right) */
-    #lanyard-root{ position:fixed; right:18px; top:18px; z-index:1200; width:240px; pointer-events:none; }
-    .lanyard-wrap{ position:relative; width:240px; height:360px; margin:0 auto; pointer-events:auto; }
-    .lanyard-strap{ position:absolute; left:calc(50% - 8px); top:-40px; width:16px; height:140px; background:#000; border-radius:10px; box-shadow:0 6px 16px rgba(0,0,0,.45); }
-    .lanyard-card{
-      position:absolute; left:50%; top:60px; transform:translateX(-50%);
-      width:220px; height:270px; background:#fff; border-radius:14px;
-      border:1px solid rgba(0,0,0,.08); box-shadow:0 14px 32px rgba(0,0,0,.18);
-      display:flex; flex-direction:column; align-items:center; padding:12px; gap:10px;
-      cursor:grab; user-select:none; will-change: transform;
-      transition: box-shadow .2s ease;
-    }
-    .lanyard-card:active{ cursor:grabbing; box-shadow:0 18px 44px rgba(0,0,0,.25); }
-    .lanyard-title{ font-weight:800; letter-spacing:.1em; text-transform:uppercase; font-size:12px; color:var(--ink); text-align:center; }
+    /* Lanyard on right, black strap & badge */
+    #lanyard{ position:fixed; right:18px; top:18px; z-index:1200; width:210px; height:360px; pointer-events:auto; display:flex; align-items:flex-start; justify-content:center; }
+    .strap{ position:absolute; right:calc(50% - 8px); top:-40px; width:16px; height:120px; background:#000; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.45); transform:rotate(6deg); }
+    .lanyard-card{ position:relative; width:210px; height:260px; background:#fff; border-radius:12px; border:1px solid rgba(0,0,0,.08); box-shadow:0 12px 28px rgba(0,0,0,.15); display:flex; flex-direction:column; align-items:center; padding:12px; gap:6px; }
+    .lanyard-header{ display:flex; gap:8px; align-items:center; width:100%; justify-content:space-between; }
+    .lanyard-title{ font-weight:800; letter-spacing:.08em; text-transform:uppercase; font-size:12px; color:var(--ink); text-align:center; }
     .lanyard-sub{ font-size:12px; color:var(--muted); text-align:center; }
-    .lanyard-qr{ width:96px; height:96px; border-radius:10px; border:1px solid var(--border); overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; }
+    .lanyard-qr{ width:92px; height:92px; border-radius:8px; border:1px solid var(--border); overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; }
     .lanyard-qr img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .lanyard-badges{ display:flex; gap:8px; align-items:center; justify-content:center; }
+    .lanyard-footer{ display:flex; gap:8px; align-items:center; justify-content:center; width:100%; }
+
     .react-badge{ font-size:12px; border-radius:8px; padding:6px 8px; background:linear-gradient(180deg,#edf6ff,#e6f0ff); border:1px solid #cfe6ff; color:#0b4076; font-weight:700; }
-    @media (max-width:1100px){ .legend,.timeline{ display:none; } }
+
+    @media (max-width:1100px){
+      .legend,.timeline{ display:none; }
+      #lanyard{ right:12px; top:12px; transform:scale(.9); transform-origin:top right; }
+    }
   </style>
 </head>
 <body>
@@ -130,7 +123,29 @@
   <p>Drag to move. Scroll to zoom. Click pins to view the gallery.</p>
 </div>
 
-<!-- City Guide -->
+<!-- Lanyard on right with black strap, QR and React badge -->
+<div id="lanyard" aria-label="Lanyard badge">
+  <div class="strap" aria-hidden="true"></div>
+  <div class="lanyard-card" role="group" aria-label="Badge">
+    <div class="lanyard-header">
+      <div style="width:110px;">
+        <div id="lanyardTitle" class="lanyard-title">Buying & Fairs — Pass</div>
+        <div id="lanyardSub" class="lanyard-sub">Hamburg • Europe</div>
+      </div>
+      <div class="lanyard-qr" id="lanyardQR" title="QR to random Spotify track">
+        <!-- QR image injected by JS -->
+      </div>
+    </div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center;">
+      <div class="react-badge" id="reactBadge">React Bits</div>
+    </div>
+    <div class="lanyard-footer">
+      <small style="color:var(--muted); font-size:11px;">Scan for a random track</small>
+    </div>
+  </div>
+</div>
+
+<!-- City Guide left -->
 <aside class="legend" id="legend">
   <h4>City Guide</h4>
   <div class="meta" id="legend-meta">Wähle einen Messestandort.</div>
@@ -139,7 +154,7 @@
   <div class="group"><h5>Spots & Experiences</h5><ul id="legend-spots"><li class="note">Noch keine Einträge</li></ul></div>
 </aside>
 
-<!-- Timeline -->
+<!-- Timeline right (decorative + active year) -->
 <div class="timeline" id="timeline" aria-hidden="true">
   <div class="line"></div>
   <div class="year" data-y="2018">2018</div>
@@ -150,9 +165,6 @@
   <div class="year" data-y="2023">2023</div>
   <div class="year" data-y="2024">2024</div>
 </div>
-
-<!-- React Lanyard mount -->
-<div id="lanyard-root"></div>
 
 <script>
   const css=(v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -171,45 +183,298 @@
         style:()=>baseStyle,
         onEachFeature:(f,lyr)=>{
           const b=lyr.getBounds();
-          // roughly Europe
-          if(b && (b.getSouth()>30 && b.getNorth()<72 && b.getWest()>-25 && b.getEast()<40)){
+          if(b && (b.getSouth()>30 && b.getNorth()<72 && b.getWest()< -25 && b.getEast()>35)){
+            // if whole world, keep interactive; else keep european bounding logic
+          }
+          // Limit interactive to Europe roughly:
+          if(b && (b.getSouth()>30 && b.getNorth()<72 && b.getWest()<40 && b.getEast()>-25)){
             lyr.on('mouseover',()=>{ const p=lyr.getElement(); if(p){ p.classList.add('hovered-country'); } lyr.bringToFront(); });
             lyr.on('mouseout', ()=>{ const p=lyr.getElement(); if(p){ p.classList.remove('hovered-country'); } });
           } else lyr.options.interactive=false;
         }
       }).addTo(map);
-    });
+    }).catch(()=>{/* ignore */});
 
-  /* Helpers */
-  const P=(name,note,link,rating)=>({name,note,link,rating});
+  /* Helper: stars */
   function stars(n=4.5){
     const full=Math.floor(n), half=(n-full)>=0.5?1:0, empty=5-full-half;
     const star=()=>`<svg viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
     const halfStar=half?`<svg viewBox="0 0 24 24"><defs><linearGradient id="half"><stop offset="50%" stop-color="${css('--star')}"/><stop offset="50%" stop-color="#d7d2c7"/></linearGradient></defs><path fill="url(#half)" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`:'';
     return `<span class="stars">${Array(full).fill(0).map(star).join('')}${halfStar}${Array(empty).fill(0).map(star).join('')}</span>`;
   }
+  const P=(name,note,link,rating)=>({name,note,link,rating});
 
-  /* Daten (Beispiele – ergänze beliebig) */
+
+  /* === Full points list (all deine Messebesuche) ===
+     Ich benutze die vollständigen Einträge aus deiner Liste (Datum, Adresse, Logos, guide etc.).
+     Falls du später ein Logo oder Bild ändern willst, ersetze den Pfad. */
   const points = [
-    { id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", year:"2024", city:"München", country:"Germany", lat:48.1351, lng:11.5820,
-      address:"MOC, Lilienthalallee 40, 80939 München, Germany", airport:"MUC — Munich Airport, 28 km",
-      photos:["https://picsum.photos/seed/mfs1/1600/1100","https://picsum.photos/seed/mfs2/1600/1100"], description:"Textilien, Zutaten und Technologien …", logos:["/logos/bervic.svg","/logos/calpier.svg"],
-      guide:{ food:[P("Tantris","(Ikone)","https://tantris.de",4.8)], hotels:[P("Andaz","(Designhotel)","https://www.hyatt.com",4.6)], spots:[P("Pinakothek","(Design)","https://www.pinakothek.de",4.7)] } },
-    { id:"pitti_2023", title:"Pitti Uomo", date:"06.2023", year:"2023", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
-      address:"Fortezza da Basso, Firenze", airport:"FLR — 6 km",
-      photos:["https://picsum.photos/seed/pitti23a/1600/1100","https://picsum.photos/seed/pitti23b/1600/1100"], description:"Europäische Menswear-Ikone …", logos:["/logos/armor-lux.svg"], guide:{ food:[P("Trattoria Mario","(Trad.)","#",4.6)], hotels:[P("Hotel Glance","(Nahe Messe)","#",4.4)], spots:[P("Uffizien","(Kunst)","https://www.uffizi.it",4.8)] } },
-    { id:"ciff_cph", title:"CIFF — Copenhagen Int. Fashion Fair", date:"08.2020", year:"2020", city:"Kopenhagen", country:"Denmark", lat:55.632, lng:12.578,
-      address:"Bella Center, København", airport:"CPH — 6 km",
-      photos:["https://picsum.photos/seed/ciff/1600/1100"], description:"Skandinavisches Design, Nachhaltigkeit …", logos:["/logos/bervic.svg"], guide:{ food:[P("Fiskebar","(Seafood)","https://fiskebaren.dk",4.6)], hotels:[P("AC Bella Sky","(Neben Messe)","https://www.marriott.com",4.3)], spots:[P("Louisiana Museum","(Kunst)","https://louisiana.dk",4.8)] } },
-    /* → Füge deine restlichen Messen hier in identischem Format ein */
+    /* 2024 */
+    {
+      id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", year:"2024",
+      city:"München", country:"Germany", lat:48.1351, lng:11.5820,
+      address:"MOC, Lilienthalallee 40, 80939 München, Germany",
+      airport:"MUC — Munich Airport, 28 km",
+      photos:["https://picsum.photos/seed/mfs1/1600/1100","https://picsum.photos/seed/mfs2/1600/1100","https://picsum.photos/seed/mfs3/1600/1100"],
+      description:"Munich Fabric Start zeigt Textilien, Zutaten und Technologien mit Fokus auf Performance, Qualität und Langlebigkeit. Functional Outerwear, Laminierungen und nachhaltige Finishes prägen das Materialbild. Das MOC liegt verkehrsgünstig im Norden Münchens.",
+      logos:["/logos/bervic.svg","/logos/calpier.svg","/logos/armor-lux.svg"],
+      guide:{ food:[P("Tantris Maison Culinaire","(Ikone der Münchner Gastronomie)","https://tantris.de",4.8),P("Brenner Grill","(Modernes Grillhaus an der Maximilianstraße)","https://brennergrill.de",4.4)],
+              hotels:[P("Andaz Munich Schwabinger Tor","(Designhotel, gut angebunden)","https://www.hyatt.com",4.6),P("Ruby Lilly","(Boutique, urban)","https://www.ruby-hotels.com",4.2)],
+              spots:[P("Pinakothek der Moderne","(Design & Architektur)","https://www.pinakothek.de",4.7),P("Englischer Garten","(Spaziergang & Eisbachwelle)","https://www.muenchen.de",4.6)] }
+    },
+
+    /* 2023 */
+    {
+      id:"riva_2023", title:"Expo Riva Shoe", date:"06.2023", year:"2023",
+      city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
+      address:"Quartiere Fieristico, Via Baltera 20, 38066 Riva del Garda TN, Italy",
+      airport:"VRN — Verona Airport, 85 km",
+      photos:["https://picsum.photos/seed/riva1/1600/1100","https://picsum.photos/seed/riva2/1600/1100"],
+      description:"Internationale Schuhmesse mit Fokus auf Materialien, Komponenten und Sourcing. Qualität, Preis-Leistung und nachhaltige Alternativen stehen im Mittelpunkt.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Osteria La Contrada","(Regionale Küche am See)","https://example.com",4.5),P("Ristorante Panem","(Brot & lokale Spezialitäten)","https://example.com",4.3)],
+              hotels:[P("Du Lac et Du Parc Grand Resort","(Am See, Parkanlage)","https://example.com",4.6),P("Hotel Sole Relax & Panorama","(Altstadtlage, Seeblick)","https://example.com",4.4)],
+              spots:[P("Monte Brione","(Aussicht & Trails)","https://example.com",4.6),P("Varone Wasserfall","(Natur-Spot)","https://example.com",4.5)] }
+    },
+    {
+      id:"pitti_2023", title:"Pitti Uomo", date:"06.2023", year:"2023",
+      city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy",
+      airport:"FLR — Florence Airport, 6 km",
+      photos:["https://picsum.photos/seed/pitti23a/1600/1100","https://picsum.photos/seed/pitti23b/1600/1100"],
+      description:"Pitti Uomo prägt die europäische Menswear-Kultur: von Tailoring bis Contemporary Brands. Der historische Veranstaltungsort Fortezza da Basso setzt eine ikonische Bühne im Herzen von Florenz.",
+      logos:["/logos/armor-lux.svg","/logos/bervic.svg"],
+      guide:{ food:[P("Trattoria Mario","(Florentinische Küche; mittags heiß begehrt)","https://goo.gl/maps/xxxx",4.6),P("La Ménagère","(Stylish, modern)","https://lamenagere.it",4.5)],
+              hotels:[P("Hotel Glance","(Nahe Fortezza, modern)","https://www.glancehotelflorence.com",4.4),P("Grand Hotel Minerva","(Piazza Santa Maria Novella)","https://www.grandhotelminerva.com",4.6)],
+              spots:[P("Uffizien","(Renaissance-Kunst)","https://www.uffizi.it",4.8),P("Piazzale Michelangelo","(Sunset-View)","https://goo.gl/maps/xxxx",4.7)] }
+    },
+
+    /* 2022 */
+    {
+      id:"cosmoprof_2022", title:"COSMOPROF", date:"04.2022", year:"2022",
+      city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy",
+      airport:"BLQ — Bologna Airport, 8 km",
+      photos:["https://picsum.photos/seed/cprof1/1600/1100"],
+      description:"COSMOPROF versammelt internationale Aussteller rund um Beauty, Duft und Texturwelten. Breite Bühne für Material- und Packaging-Inspirationen – von Finishes bis Sensorik.",
+      logos:["/logos/calpier.svg"],
+      guide:{ food:[P("Trattoria di Via Serra","(Regional & herzlich)","https://example.com",4.7),P("Sfoglia Rina","(Pasta-Manufaktur)","https://example.com",4.6)],
+              hotels:[P("Aemilia Hotel","(Modern, zentrumsnah)","https://example.com",4.4),P("I Portici","(Historisches Flair)","https://example.com",4.5)],
+              spots:[P("Le Due Torri","(Wahrzeichen)","https://example.com",4.6),P("Quadrilatero Markt","(Food-Kultur)","https://example.com",4.5)] }
+    },
+    {
+      id:"cosmopack_2022", title:"COSMOPACK", date:"04.2022", year:"2022",
+      city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy",
+      airport:"BLQ — Bologna Airport, 8 km",
+      photos:["https://picsum.photos/seed/cpack1/1600/1100"],
+      description:"COSMOPACK fokussiert Verpackung, Prozesse und Kreislaufstrategien. Von Primärverpackung bis High-End-Finishes – industrielle Lösungen und nachhaltige Materialpfade.",
+      logos:["/logos/calpier.svg"],
+      guide:{ food:[P("Osteria dell'Orsa","(Bologna-Classic)","https://example.com",4.5),P("Drogheria della Rosa","(Romantisch, regional)","https://example.com",4.6)],
+              hotels:[P("Royal Hotel Carlton","(Businessfreundlich)","https://example.com",4.3),P("NH Bologna de la Gare","(Zentral)","https://example.com",4.2)],
+              spots:[P("Portici von Bologna","(Kilometerlange Arkaden)","https://example.com",4.7),P("Santo Stefano Komplex","(Sieben Kirchen)","https://example.com",4.6)] }
+    },
+    {
+      id:"maisonobjet_paris_2022", title:"Maison&Objet", date:"03.2022", year:"2022",
+      city:"Paris", country:"France", lat:48.972, lng:2.519,
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
+      airport:"CDG — Charles de Gaulle, 8 km",
+      photos:["https://picsum.photos/seed/mo22/1600/1100"],
+      description:"Maison&Objet kuratiert Interieur, Lifestyle und Objekt-Design mit Fokus auf Materialästhetik, Haptik und Farbe. Villepinte ist hervorragend angebunden.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Le Train Bleu","(Belle Époque, Gare de Lyon)","https://www.le-train-bleu.com",4.6),P("Frenchie","(Moderne französische Küche)","https://www.frenchie-restaurant.com",4.7)],
+              hotels:[P("Okko Hotels Paris Gare de l'Est","(Modern & praktisch)","https://okkohotels.com",4.3),P("CitizenM CDG","(Direkt am Flughafen)","https://www.citizenm.com",4.2)],
+              spots:[P("Centre Pompidou","(Kunst & Design)","https://www.centrepompidou.fr",4.7),P("Parc de la Villette","(Kulturareal)","https://lavillette.com",4.5)] }
+    },
+
+    /* 2021 */
+    {
+      id:"micam_milan_2021", title:"MICAM", date:"09.2021", year:"2021",
+      city:"Mailand", country:"Italy", lat:45.518, lng:9.103,
+      address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy",
+      airport:"MXP — Milano Malpensa, 45 km",
+      photos:["https://picsum.photos/seed/micam21/1600/1100"],
+      description:"Leitmesse der internationalen Schuhindustrie. Von Oberleder bis Sohlenkomponenten – Qualität, Verarbeitung und Markeninszenierungen.",
+      logos:["/logos/bervic.svg","/logos/calpier.svg"],
+      guide:{ food:[P("Trippa Milano","(Neo-Trattoria)","https://trippa.it",4.7),P("Ratanà","(Modern lombardisch)","https://ratana.it",4.6)],
+              hotels:[P("nhow Milano","(Designhotel, Tortona)","https://www.nhow-hotels.com",4.3),P("UNAHOTELS Expo Fiera","(Nähe Rho)","https://www.gruppouna.it",4.2)],
+              spots:[P("Fondazione Prada","(Kunst & Architektur)","https://www.fondazioneprada.org",4.7),P("Navigli","(Abend am Kanal)","https://example.com",4.5)] }
+    },
+    {
+      id:"pitti100", title:"Pitti Uomo 100", date:"07.2021", year:"2021",
+      city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy",
+      airport:"FLR — Florence Airport, 6 km",
+      photos:["https://picsum.photos/seed/pitti100/1600/1100"],
+      description:"Jubiläumsausgabe der renommierten Menswear-Messe. Heritage trifft progressive Schnitttechnik und Stoffqualität – prägnante Kulisse im Zentrum von Florenz.",
+      logos:["/logos/armor-lux.svg"],
+      guide:{ food:[P("Enoteca Pitti Gola e Cantina","(Weinbar am Palazzo Pitti)","https://www.pittigolaecantina.com",4.6),P("All’Antico Vinaio","(Panini-Kult)","https://allanticovinaio.com",4.5)],
+              hotels:[P("Hotel L’Orologio","(Zentral, klassisch)","https://www.hotelorologioflorence.com",4.4),P("Portrait Firenze","(Luxus an der Arno)","https://www.lungarnocollection.com",4.7)],
+              spots:[P("Galleria dell’Accademia","(Michelangelos David)","https://www.galleriaaccademiafirenze.it",4.8),P("Giardino Bardini","(Garten & Aussicht)","https://www.bardinipeyron.it",4.6)] }
+    },
+    {
+      id:"nordstil_hh", title:"Nordstil", date:"07.2021", year:"2021",
+      city:"Hamburg", country:"Germany", lat:53.5586, lng:9.9836,
+      address:"Hamburg Messe, Messeplatz 1, 20357 Hamburg, Germany",
+      airport:"HAM — Hamburg Airport, 9 km",
+      photos:["https://picsum.photos/seed/hhnord/1600/1100"],
+      description:"Lifestyle-, Deko- und Gifting-Sortimente. Impulse für POS-Konzepte und Markeninszenierung mit regionaler & internationaler Ausstellerstruktur.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Bullerei","(Schanzen-Klassiker)","https://www.bullerei.com",4.5),P("NENI Hamburg","(Hausmannskost modern)","https://www.25hours-hotels.com",4.4)],
+              hotels:[P("Mövenpick Hotel Sternschanze","(Direkt an der Messe)","https://www.movenpick.com",4.4),P("25hours HafenCity","(Design & Storytelling)","https://www.25hours-hotels.com",4.5)],
+              spots:[P("Elbphilharmonie","(Architektur-Ikone)","https://www.elbphilharmonie.de",4.8),P("Planten un Blomen","(Park & Wasserspiele)","https://www.hamburg.de/parkanlagen/1832196/plantenunblomen",4.6)] }
+    },
+
+    /* 2020 */
+    {
+      id:"ciff_cph", title:"CIFF — Copenhagen Int. Fashion Fair", date:"08.2020", year:"2020",
+      city:"Kopenhagen", country:"Denmark", lat:55.632, lng:12.578,
+      address:"Bella Center, Center Blvd. 5, 2300 København, Denmark",
+      airport:"CPH — Kastrup, 6 km",
+      photos:["https://picsum.photos/seed/ciff/1600/1100"],
+      description:"Skandinavische Marken, klares Design und starke Nachhaltigkeitsinitiativen. Klarheit, Funktion und Materialqualität prägen das Bild.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Kødbyens Fiskebar","(Seafood im Meatpacking)","https://fiskebaren.dk",4.6),P("Høst","(Nordische Küche, Design)","https://cofoco.dk/en/restaurants/hoest",4.7)],
+              hotels:[P("Hotel SP34","(Boutique im Zentrum)","https://brochner-hotels.dk/sp34",4.4),P("AC Bella Sky","(Direkt am Bella Center)","https://www.marriott.com",4.3)],
+              spots:[P("Louisiana Museum","(Kunst & Meer)","https://louisiana.dk",4.8),P("Superkilen Park","(Urban Design)","https://example.com",4.6)] }
+    },
+    {
+      id:"supreme_dus", title:"Supreme Women&Men", date:"07.2020", year:"2020",
+      city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
+      address:"B1 Fashion, Bennigsen-Platz 1, 40474 Düsseldorf, Germany",
+      airport:"DUS — Düsseldorf Airport, 6 km",
+      photos:["https://picsum.photos/seed/supreme/1600/1100"],
+      description:"Women & Men Showrooms: Kollektionen, Qualitäten und Preispunkte im direkten Order-Gespräch.",
+      logos:["/logos/calpier.svg"],
+      guide:{ food:[P("Brauerei Schumacher","(Altbier & rheinische Küche)","https://www.schumacher-alt.de",4.5),P("Takumi","(Ramen-Kult)","https://takumi.de",4.4)],
+              hotels:[P("me and all hotel","(Design, Japanviertel)","https://www.meandallhotels.com",4.4),P("25hours Das Tour","(Französischer Twist)","https://www.25hours-hotels.com",4.5)],
+              spots:[P("Rheinpromenade","(Spaziergang)","https://example.com",4.6),P("Kunstsammlung K20","(Moderne Kunst)","https://www.kunstsammlung.de",4.7)] }
+    },
+    {
+      id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020", year:"2020",
+      city:"Paris", country:"France", lat:48.864, lng:2.332,
+      address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France",
+      airport:"CDG — Charles de Gaulle, 27 km",
+      photos:["https://picsum.photos/seed/tranoi20/1600/1100"],
+      description:"Kuratiertes Designer-Line-up zwischen Kunst und Mode. Fokus auf Materialinnovationen, Verarbeitung und Markenidentität.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Verjus","(Bistronomie & Weinbar)","https://verjusparis.com",4.6),P("Au Passage","(Moderne kleine Gerichte)","https://aupassageparis.fr",4.5)],
+              hotels:[P("Hotel Louvre Saint-Honoré","(Louvre-Nähe)","https://www.hotellouvresainthonore.com",4.2),P("Hotel du Louvre","(Hyatt – klassisch)","https://www.hyatt.com",4.5)],
+              spots:[P("Tuilerien & Louvre","(Spaziergang & Kunst)","https://www.louvre.fr",4.8),P("Palais Royal","(Gärten & Arkaden)","https://www.domaine-palais-royal.fr",4.6)] }
+    },
+
+    /* 2019 */
+    {
+      id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019", year:"2019",
+      city:"London", country:"United Kingdom", lat:51.495, lng:-0.210,
+      address:"Olympia London, Hammersmith Rd, London W14 8UX, UK",
+      airport:"LHR — Heathrow, 20 km",
+      photos:["https://picsum.photos/seed/tdrawer/1600/1100"],
+      description:"Design-led Retail mit Fokus auf Interior, Gifting und Marken-Storytelling. Gute Quelle für Packaging- und VM-Inspiration.",
+      logos:["/logos/armor-lux.svg"],
+      guide:{ food:[P("Dishoom Kensington","(Bombay Café)","https://www.dishoom.com",4.6),P("Sticks'n'Sushi","(Nordic-Japan)","https://sticksnsushi.com",4.5)],
+              hotels:[P("K West Hotel","(Shepherd’s Bush)","https://www.k-west.co.uk",4.1),P("The Resident Kensington","(Boutique)","https://www.residenthotels.com",4.4)],
+              spots:[P("Design Museum","(Architektur & Design)","https://designmuseum.org",4.7),P("Holland Park Kyoto Garden","(Ruhe-Spot)","https://www.rbkc.gov.uk",4.6)] }
+    },
+    {
+      id:"whosnext_ldn", title:"Who’s Next?", date:"09.2019", year:"2019",
+      city:"London", country:"United Kingdom", lat:51.508, lng:-0.028,
+      address:"ExCeL London, 1 Western Gateway, London E16 1XL, UK",
+      airport:"LCY — London City, 4 km",
+      photos:["https://picsum.photos/seed/whosnext/1600/1100"],
+      description:"Zeitgenössische Mode- & Accessoires-Schau mit Fokus auf Retail-Relevanz und Brand-Mix. (London-Edition)",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("ROKA Canary Wharf","(Robata Grill)","https://www.rokarestaurant.com",4.6),P("Plateau","(Modern European)","https://www.plateau-restaurant.co.uk",4.4)],
+              hotels:[P("Good Hotel London","(Floating hotel)","https://www.goodhotellondon.com",4.2),P("Aloft London Excel","(Direkt am Messegelände)","https://www.marriott.com",4.3)],
+              spots:[P("Greenwich Park","(Blick auf City)","https://www.royalparks.org.uk",4.7),P("Thames Path","(Riverside Walk)","https://www.nationaltrail.co.uk",4.6)] }
+    },
+    {
+      id:"tranoi_paris_2019", title:"TRANOÏ", date:"09.2019", year:"2019",
+      city:"Paris", country:"France", lat:48.864, lng:2.332,
+      address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France",
+      airport:"CDG — Charles de Gaulle, 27 km",
+      photos:["https://picsum.photos/seed/tranoi19/1600/1100"],
+      description:"Designer-Präsentationen mit präziser Material- und Prozesssprache. Schnittstelle zwischen Atelier, Industrie und Retail.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Septime","(Moderne Küche)","https://septime-charonne.fr",4.8),P("Buvette Paris","(Brunch & Wein)","https://ilovebuvette.com",4.5)],
+              hotels:[P("Hôtel des Grands Boulevards","(Trendy)","https://www.grandsboulevards.com",4.5),P("Hôtel Crayon Rouge","(Boutique)","https://www.lecrayon.com",4.3)],
+              spots:[P("Musée d’Orsay","(Impressionismus)","https://www.musee-orsay.fr",4.8),P("Canal Saint-Martin","(Cafés & Flanieren)","https://example.com",4.6)] }
+    },
+    {
+      id:"maisonobjet_paris_2019", title:"Maison&Objet", date:"01.2019", year:"2019",
+      city:"Paris", country:"France", lat:48.972, lng:2.519,
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
+      airport:"CDG — Charles de Gaulle, 8 km",
+      photos:["https://picsum.photos/seed/mo19/1600/1100"],
+      description:"Home & Object mit starkem Fokus auf Oberflächen, Handwerk und Farbklimata. Ideal für Mood- und Materialrecherchen.",
+      logos:["/logos/armor-lux.svg"],
+      guide:{ food:[P("Clown Bar","(Natural Wine & Bistro)","https://clown-bar-paris.fr",4.6),P("Holybelly","(Café-Klassiker)","https://holybellycafe.com",4.5)],
+              hotels:[P("Okko Hotels Rosny","(Budget-Design)","https://okkohotels.com",4.1),P("citizenM CDG","(Airport-Hotel)","https://www.citizenm.com",4.2)],
+              spots:[P("La Seine Musicale","(Architektur, Konzerte)","https://www.laseinemusicale.com",4.6),P("Atelier des Lumières","(Immersive Kunst)","https://www.atelier-lumieres.com",4.7)] }
+    },
+
+    /* 2018 */
+    {
+      id:"micam_milan_2018", title:"MICAM", date:"09.2018", year:"2018",
+      city:"Mailand", country:"Italy", lat:45.518, lng:9.103,
+      address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy",
+      airport:"MXP — Milano Malpensa, 45 km",
+      photos:["https://picsum.photos/seed/micam18/1600/1100"],
+      description:"Leitmesse der Schuhindustrie. Komponenten, Obermaterialien und internationale Marken setzen Maßstäbe.",
+      logos:["/logos/calpier.svg"],
+      guide:{ food:[P("Da Giacomo","(Mailänder Klassiker)","https://www.giacomo.it",4.6),P("Soulgreen","(Plant-based)","https://www.soulgreen.com",4.5)],
+              hotels:[P("NH Collection Milano CityLife","(Neu & modern)","https://www.nh-collection.com",4.5),P("UNAHOTELS Expo Fiera","(Nähe Rho)","https://www.gruppouna.it",4.2)],
+              spots:[P("ADI Design Museum","(Italienisches Design)","https://www.adidesignmuseum.org",4.7),P("Brera","(Gassen & Galerien)","https://example.com",4.6)] }
+    },
+    {
+      id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018", year:"2018",
+      city:"Berlin", country:"Germany", lat:52.5, lng:13.375,
+      address:"STATION Berlin, Luckenwalder Str. 4–6, 10963 Berlin, Germany",
+      airport:"BER — Berlin Brandenburg, 20 km",
+      photos:["https://picsum.photos/seed/ftber/1600/1100"],
+      description:"Schnittstelle von Technologie und Mode: Digitalisierung, Automatisierung, neue Materialien und Prozesse.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Nobelhart & Schmutzig","(Regional radikal)","https://nobelhartundschmutzig.com",4.7),P("Coda Dessert Dining","(Dessert-Menü)","https://www.coda-berlin.de",4.7)],
+              hotels:[P("Michelberger Hotel","(Kreative Community)","https://michelbergerhotel.com",4.5),P("25hours Bikini","(Urban Jungle)","https://www.25hours-hotels.com",4.6)],
+              spots:[P("Hamburger Bahnhof","(Moderne Kunst)","https://www.smb.museum",4.7),P("Tempelhofer Feld","(Weite & Urbanität)","https://www.thf-berlin.de",4.6)] }
+    },
+    {
+      id:"seek_berlin", title:"SEEK", date:"01.2018", year:"2018",
+      city:"Berlin", country:"Germany", lat:52.5, lng:13.45,
+      address:"Arena Berlin, Eichenstr. 4, 12435 Berlin, Germany",
+      airport:"BER — Berlin Brandenburg, 18 km",
+      photos:["https://picsum.photos/seed/seek/1600/1100"],
+      description:"Zeitgenössische Fashion-Plattform mit Markenmix, Materialqualität und Order-Relevanz.",
+      logos:["/logos/armor-lux.svg"],
+      guide:{ food:[P("Burgermeister","(Ikonischer Burger)","https://www.burger-meister.de",4.5),P("Benedict","(24/7 Breakfast)","https://www.benedict-breakfast.de",4.4)],
+              hotels:[P("nhow Berlin","(Musik-Hotel)","https://www.nhow-hotels.com",4.3),P("Orania.Berlin","(Design & Jazz)","https://orania.berlin",4.6)],
+              spots:[P("East Side Gallery","(Mauer-Kunst)","https://www.eastsidegalleryberlin.com",4.7),P("Badeschiff","(Spree-Pool)","https://arena.berlin/venues/badeschiff",4.5)] }
+    },
+
+    /* 2017 */
+    {
+      id:"panorama_berlin_2017", title:"Panorama Berlin", date:"01.2017", year:"2017",
+      city:"Berlin", country:"Germany", lat:52.51, lng:13.375,
+      address:"Messe Berlin, Messedamm 22, 14055 Berlin, Germany",
+      airport:"BER — Berlin Brandenburg, 28 km",
+      photos:["https://picsum.photos/seed/panorama/1600/1100"],
+      description:"Fashion-Tradeshow mit breiter Segmentierung und guter Marktorientierung – nützlich für Preispunkte und Sortiment.",
+      logos:["/logos/bervic.svg"],
+      guide:{ food:[P("Paris-Moskau","(Klassiker am Park)","https://www.parismoskau.de",4.4),P("Katz Orange","(Slow Food)","https://www.katzorange.com",4.6)],
+              hotels:[P("AMANO Grand Central","(Am Hbf)","https://www.amanogroup.de",4.3),P("Steigenberger am Kanzleramt","(Business, Blick)","https://www.steigenberger.com",4.5)],
+              spots:[P("Siegessäule & Tiergarten","(Spaziergang)","https://www.stiftung-denkmal.de",4.6),P("Bikini Berlin","(Concept Mall)","https://www.bikiniberlin.de",4.5)] }
+    }
+
+    /* Wenn du weitere Pins hattest: ergänze sie hier in identischem Format. */
   ];
 
-  /* Legend update */
+  /* Legend update helper */
   function updateLegend(pt){
     const meta=document.getElementById('legend-meta');
     const food=document.getElementById('legend-food');
     const hotels=document.getElementById('legend-hotels');
     const spots=document.getElementById('legend-spots');
+
     meta.textContent=`${pt.city}, ${pt.country} — ${pt.title} (${pt.date})`;
 
     function fill(el, arr){
@@ -232,15 +497,18 @@
     fill(spots, pt.guide?.spots);
   }
 
-  /* Timeline */
-  function highlightYear(y){ document.querySelectorAll('.timeline .year').forEach(el=>el.classList.toggle('active', el.dataset.y===String(y))); }
+  /* Timeline highlight */
+  function highlightYear(y){
+    document.querySelectorAll('.timeline .year').forEach(el=>el.classList.toggle('active', el.dataset.y===String(y)));
+  }
 
-  /* Pins + routes */
+  /* Pin icon */
   function pinSVG(size=22,color=css('--pin')){
     return `<svg width="${size}" height="${size*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 6.5 12.75 7.63 14.0a.5.5 0 0 0 .74 0C13.5 20.75 20 13.25 20 8c0-4.42-3.58-8-8-8z" fill="${color}"/><circle cx="12" cy="8" r="3.2" fill="#fff" opacity=".9"/></svg>`;
   }
   function createPinIcon(){ return L.divIcon({ className:'pin', html:pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] }); }
 
+  /* Route / flight layer */
   const routeLayer = L.layerGroup().addTo(map);
   const HAMBURG = [53.5511, 9.9937];
   let lastPoint = null;
@@ -253,71 +521,77 @@
     L.marker([midLat, midLng], { icon: planeIcon, interactive:false }).addTo(routeLayer);
   }
 
+  /* Popup HTML */
   function popupHTML(pt){
     const meta = `<div class="meta-line"><span>${pt.city}, ${pt.country}</span><span>${pt.date}</span></div>`;
+    const info = `
+      <div class="info-row">
+        <div class="info-item"><div class="icons"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg></div><div class="label">Location</div><div class="sub">${pt.address}</div></div>
+        <div class="info-item"><div class="icons"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg></div><div class="label">Nearest Airport</div><div class="sub">${pt.airport}</div></div>
+      </div>
+    `;
     const first = (pt.photos && pt.photos.length) ? pt.photos[0] : 'https://picsum.photos/seed/cover/1600/1100';
     const logos = (pt.logos && pt.logos.length) ? pt.logos.map(l=>`<img src="${l}" alt="logo">`).join('') : `<div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div>`;
     return `
       <h3 class="city-label">${pt.title}</h3>
       ${meta}
       <div class="gallery" id="gallery-${pt.id}">
-        <div class="frame"><img src="${first}" alt="${pt.city}"></div>
+        ${pt.photos.map((src,idx)=>`<img src="${src}" class="gallery-image ${idx===0? 'active':''}" data-index="${idx}" alt="${pt.city} image ${idx+1}">`).join('')}
         ${pt.photos.length>1? `<button class="nav-btn nav-prev" aria-label="Previous">‹</button><button class="nav-btn nav-next" aria-label="Next">›</button>` : ''}
       </div>
       <div class="desc">${pt.description}</div>
-      <div class="info-row">
-        <div class="info-item">
-          <div class="icons"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg></div>
-          <div class="label">Location</div><div class="sub">${pt.address}</div>
-        </div>
-        <div class="info-item">
-          <div class="icons"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
-          <div class="label">Nearest Airport</div><div class="sub">${pt.airport}</div>
-        </div>
-      </div>
+      ${info}
       <div class="collab-head">Collaborations / Buying Companies</div>
       <div class="logo-row">${logos}</div>
       <a class="desc" href="/work/buying-and-fairs/${pt.id}" target="_blank" rel="noopener">Mehr zum Besuch →</a>
     `;
   }
 
+  /* Gallery handlers */
   const galleryIndex = new Map();
   function bindGalleryHandlers(container, photos, id){
-    const frame=container.querySelector('.gallery .frame');
-    const img  =container.querySelector('.gallery img');
-    const prev =container.querySelector('.nav-prev');
-    const next =container.querySelector('.nav-next');
-    const arr=(photos||[]);
+    const images = container.querySelectorAll('.gallery-image');
     if(!galleryIndex.has(id)) galleryIndex.set(id,0);
-    function render(){ if(!arr.length) return; const i=galleryIndex.get(id)%arr.length; img.src=arr[i]; img.style.animation='none'; void img.offsetWidth; img.style.animation='ken 14s ease-in-out infinite alternate'; }
-    function go(d){ if(!arr.length) return; let i=galleryIndex.get(id); i=(i+d+arr.length)%arr.length; galleryIndex.set(id,i); render(); }
-    prev && prev.addEventListener('click',e=>{ e.stopPropagation(); go(-1); });
-    next && next.addEventListener('click',e=>{ e.stopPropagation(); go(1); });
-    const box=container.querySelector('.gallery');
-    box && box.addEventListener('mousemove',(e)=>{ const r=box.getBoundingClientRect(), x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height; const rx=(.5-y)*6, ry=(x-.5)*6; frame.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`; });
-    box && box.addEventListener('mouseleave',()=>{ frame.style.transform='rotateX(0) rotateY(0)'; });
-    let startX=null; box && box.addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; }, {passive:true});
-    box && box.addEventListener('touchend',   e=>{ if(startX===null) return; const dx=e.changedTouches[0].clientX-startX; if(Math.abs(dx)>40) go(dx<0?1:-1); startX=null; });
-    render();
+    function show(i){
+      images.forEach((img, idx)=>img.classList.toggle('active', idx===i));
+    }
+    function next(){ if(!images.length) return; let i = galleryIndex.get(id); i=(i+1)%images.length; galleryIndex.set(id,i); show(i); }
+    function prev(){ if(!images.length) return; let i = galleryIndex.get(id); i=(i-1+images.length)%images.length; galleryIndex.set(id,i); show(i); }
+    container.querySelectorAll('.nav-prev').forEach(btn=>btn.addEventListener('click', (e)=>{ e.stopPropagation(); prev(); }));
+    container.querySelectorAll('.nav-next').forEach(btn=>btn.addEventListener('click', (e)=>{ e.stopPropagation(); next(); }));
+    // touch swipe
+    let startX=null;
+    container.addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; }, {passive:true});
+    container.addEventListener('touchend', e=>{ if(startX===null) return; const dx=e.changedTouches[0].clientX-startX; if(Math.abs(dx)>40){ dx<0 ? next() : prev(); } startX=null; });
+    // mouse parallax
+    container.addEventListener('mousemove', e=>{
+      const rect = container.getBoundingClientRect();
+      const x=(e.clientX-rect.left)/rect.width-0.5;
+      const y=(e.clientY-rect.top)/rect.height-0.5;
+      const frame = container.querySelector('.gallery');
+      if(frame) frame.style.transform = `rotateX(${(-y*6).toFixed(2)}deg) rotateY(${(x*6).toFixed(2)}deg)`;
+    });
+    container.addEventListener('mouseleave', ()=>{ const frame = container.querySelector('.gallery'); if(frame) frame.style.transform='rotateX(0) rotateY(0)'; });
   }
 
-  /* Create markers */
+  /* Create markers and events */
   points.forEach(pt=>{
     const marker = L.marker([pt.lat, pt.lng], { icon:createPinIcon() }).addTo(map);
     marker.bindTooltip(pt.city, { direction:'top', offset:[0,-12], className:'custom-tooltip' });
     marker.on('click', ()=> {
       const popup = L.popup({ maxWidth:820, className:'custom-popup' }).setLatLng([pt.lat, pt.lng]).setContent(popupHTML(pt)).openOn(map);
+      // gallery after open
       setTimeout(()=> {
         const galleryEl = document.getElementById(`gallery-${pt.id}`);
         if(galleryEl) bindGalleryHandlers(galleryEl, pt.photos, pt.id);
-      }, 60);
+      }, 80);
       updateLegend(pt);
       highlightYear(pt.year);
-      const from = window._lastPoint || [53.5511, 9.9937]; // Hamburg start
+      const from = window._lastPoint || HAMBURG;
       drawSegment(from, [pt.lat, pt.lng]);
       window._lastPoint = [pt.lat, pt.lng];
-      // Update React Lanyard
-      if(window.setLanyard) window.setLanyard(`${pt.title}`, `${pt.city} • ${pt.date}`);
+      // update lanyard badge text
+      updateLanyard(`${pt.title}`, `${pt.city} • ${pt.date}`);
     });
   });
 
@@ -325,112 +599,42 @@
   const latlngs = points.map(p=>[p.lat,p.lng]);
   if(latlngs.length){ map.fitBounds(L.latLngBounds(latlngs).pad(.22)); }
 
-  /* ESC closes popup */
+  /* === Lanyard QR logic (random Spotify link) === */
+  (function(){
+    // A small list of sample Spotify track IDs (replace with tracks you like)
+    const spotifyTracks = [
+      '3n3Ppam7vgaVa1iaRUc9Lp', // example
+      '7ouMYWpwJ422jRcDASZB7P',
+      '1dGr1c8CrMLDpV6mPbImSI',
+      '2TakcwOaAZWiXQijPHIx7B'
+    ];
+    const random = spotifyTracks[Math.floor(Math.random()*spotifyTracks.length)];
+    const spotifyUrl = `https://open.spotify.com/track/${random}`;
+    // Create QR with external QR API
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(spotifyUrl)}`;
+    const qrContainer = document.getElementById('lanyardQR');
+    if(qrContainer){
+      const img = document.createElement('img');
+      img.src = qrUrl;
+      img.alt = 'QR to Spotify';
+      qrContainer.appendChild(img);
+      // clicking QR opens link
+      qrContainer.style.cursor = 'pointer';
+      qrContainer.addEventListener('click', ()=> window.open(spotifyUrl, '_blank'));
+    }
+    // react badge click -> react bits docs (info)
+    const rb = document.getElementById('reactBadge');
+    if(rb) rb.addEventListener('click', ()=> window.open('https://reactbits.dev/components/lanyard', '_blank'));
+  })();
+
+  /* Update lanyard text */
+  function updateLanyard(title, sub){ document.getElementById('lanyardTitle').textContent = title || 'Buying & Fairs — Pass'; document.getElementById('lanyardSub').textContent = sub || 'Hamburg • Europe'; }
+
+  /* Keyboard ESC to close popups */
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') map.closePopup(); });
+
+  /* Accessibility - focus map container on click */
+  map.on('click', ()=> map.getContainer().focus());
 </script>
-
-<!-- React Lanyard Component (JSX) -->
-<script type="text/babel">
-  const {useRef, useEffect, useState} = React;
-
-  function Lanyard(){
-    // public setters to update from Leaflet clicks
-    const [title, setTitle] = useState('Buying & Fairs — Pass');
-    const [sub, setSub] = useState('Hamburg • Europe');
-    const [qr, setQr] = useState(null);
-
-    // expose to window
-    useEffect(()=>{ window.setLanyard = (t,s)=>{ setTitle(t||'Buying & Fairs — Pass'); setSub(s||'Hamburg • Europe'); }; },[]);
-
-    // random spotify QR on mount
-    useEffect(()=>{
-      const tracks = ['3n3Ppam7vgaVa1iaRUc9Lp','7ouMYWpwJ422jRcDASZB7P','1dGr1c8CrMLDpV6mPbImSI','2TakcwOaAZWiXQijPHIx7B'];
-      const id = tracks[Math.floor(Math.random()*tracks.length)];
-      const url = `https://open.spotify.com/track/${id}`;
-      const q = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-      setQr({img:q, url});
-    },[]);
-
-    // physics (springy drag/drop)
-    const wrapRef = useRef(null);
-    const cardRef = useRef(null);
-    const animRef = useRef({ x:0, y:0, vx:0, vy:0, tx:0, ty:0, dragging:false });
-    useEffect(()=>{
-      const el = cardRef.current, root = wrapRef.current;
-      if(!el || !root) return;
-      const cfg = { k:0.015, damp:0.08, tilt:0.12, range:{x:[-40,40], y:[-10,40]} };
-      function clamp(v,[a,b]){ return Math.max(a, Math.min(b, v)); }
-      function render(){
-        const s = animRef.current;
-        const ax = (s.tx - s.x) * cfg.k;
-        const ay = (s.ty - s.y) * cfg.k;
-        s.vx = (s.vx + ax) * (1 - cfg.damp);
-        s.vy = (s.vy + ay) * (1 - cfg.damp);
-        s.x += s.vx; s.y += s.vy;
-        const ang = Math.atan2(s.x, 120) * (180/Math.PI) * cfg.tilt;
-        el.style.transform = `translateX(-50%) translate(${s.x}px, ${s.y}px) rotate(${ang}deg)`;
-        requestAnimationFrame(render);
-      }
-      requestAnimationFrame(render);
-
-      function onMove(e){
-        if(animRef.current.dragging) return;
-        const r = root.getBoundingClientRect();
-        const x = clamp(e.clientX - (r.left + r.width/2), cfg.range.x);
-        const y = clamp(e.clientY - (r.top + 60 + 135), cfg.range.y);
-        animRef.current.tx = x; animRef.current.ty = y;
-      }
-      window.addEventListener('mousemove', onMove);
-
-      // drag
-      let offX=0, offY=0;
-      function down(e){
-        animRef.current.dragging = true;
-        const rect = el.getBoundingClientRect();
-        offX = e.clientX - rect.left - rect.width/2;
-        offY = e.clientY - rect.top  - rect.height/2;
-        e.preventDefault();
-      }
-      function move(e){
-        if(!animRef.current.dragging) return;
-        const r = root.getBoundingClientRect();
-        animRef.current.tx = clamp(e.clientX - (r.left + r.width/2) - offX, cfg.range.x);
-        animRef.current.ty = clamp(e.clientY - (r.top + 60 + 135) - offY, cfg.range.y);
-      }
-      function up(){ animRef.current.dragging = false; }
-      el.addEventListener('mousedown', down);
-      window.addEventListener('mousemove', move);
-      window.addEventListener('mouseup', up);
-
-      return ()=>{ window.removeEventListener('mousemove', onMove); window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); el.removeEventListener('mousedown', down); };
-    },[]);
-
-    return (
-      <div className="lanyard-wrap" ref={wrapRef}>
-        <div className="lanyard-strap" aria-hidden="true"></div>
-        <div className="lanyard-card" ref={cardRef} role="group" aria-label="Badge">
-          <div style={{display:'flex', gap:8, alignItems:'center', justifyContent:'space-between', width:'100%'}}>
-            <div style={{width:120}}>
-              <div className="lanyard-title">{title}</div>
-              <div className="lanyard-sub">{sub}</div>
-            </div>
-            <div className="lanyard-qr" title="QR to random Spotify track" onClick={()=> qr && window.open(qr.url,'_blank')} style={{cursor: qr?'pointer':'default'}}>
-              {qr ? <img src={qr.img} alt="QR" /> : null}
-            </div>
-          </div>
-          <div style={{flex:1, display:'flex', alignItems:'center', justifyContent:'center'}}>
-            <div className="lanyard-badges">
-              <div className="react-badge" onClick={()=> window.open('https://reactbits.dev/components/lanyard','_blank')} style={{cursor:'pointer'}}>React Bits</div>
-            </div>
-          </div>
-          <small style={{color:'var(--muted)', fontSize:11}}>Drag & drop — like React Bits</small>
-        </div>
-      </div>
-    );
-  }
-
-  ReactDOM.createRoot(document.getElementById('lanyard-root')).render(<Lanyard />);
-</script>
-
 </body>
 </html>
