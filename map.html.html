@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Buying & Fairs — Map</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html,body { height:100%; margin:0; font-family:Inter,system-ui,Arial; background:#fff; color:#111; }
+    #map { width:100%; height:100vh; min-height:420px; }
+    .leaflet-popup-content { max-width:320px; }
+    .popup-photos { display:flex; gap:6px; margin-top:8px; }
+    .popup-photos img { width:86px; height:60px; object-fit:cover; border-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,0.12); }
+    .city-label { font-weight:700; margin-bottom:6px; }
+    .map-header { position:absolute; top:18px; left:18px; z-index:4000; background:rgba(255,255,255,0.9); padding:10px 14px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+    .map-header h3 { margin:0; font-size:16px; letter-spacing:0.6px; }
+    .map-header p { margin:6px 0 0; font-size:13px; color:#666; }
+    @media (max-width:700px){
+      .map-header { left:12px; right:12px; padding:8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div class="map-header">
+  <h3>Buying & Fairs — My European Trade Journeys</h3>
+  <p>Click pins to view photos and notes. Drag to move, scroll to zoom.</p>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // Beispiel-Daten: ersetze oder erweitere
+  const points = [
+    {
+      id: "milan2023",
+      city: "Milano",
+      country: "Italy",
+      lat: 45.4668,
+      lng: 9.1905,
+      title: "Milano Moda 2023",
+      year: "2023",
+      photos: ["1_firenze_ 21","2_firenze_ 21"],
+      description: "Trend scouting, sustainable yarns and functional fabrics."
+    },
+    {
+      id: "paris2022",
+      city: "Paris",
+      country: "France",
+      lat: 48.8566,
+      lng: 2.3522,
+      title: "Premiere Vision 2022",
+      year: "2022",
+      photos: ["photos/paris1.jpg"],
+      description: "Sourcing, material research, new finish techniques."
+    },
+    {
+      id: "munich2024",
+      city: "München",
+      country: "Germany",
+      lat: 48.1351,
+      lng: 11.5820,
+      title: "Munich Fabric Start 2024",
+      year: "2024",
+      photos: ["photos/munich1.jpg","photos/munich2.jpg"],
+      description: "Functional outerwear fabrics and coatings."
+    },
+    {
+      id: "frankfurt2021",
+      city: "Frankfurt",
+      country: "Germany",
+      lat: 50.1109,
+      lng: 8.6821,
+      title: "Industry Fair Frankfurt 2021",
+      year: "2021",
+      photos: ["photos/frankfurt1.jpg"],
+      description: "Buyer meetings and fabric certifications."
+    },
+    {
+      id: "copenhagen2022",
+      city: "Copenhagen",
+      country: "Denmark",
+      lat: 55.6761,
+      lng: 12.5683,
+      title: "Copenhagen Trade Fair 2022",
+      year: "2022",
+      photos: ["photos/cph1.jpg"],
+      description: "Circular materials and small-batch producers."
+    }
+  ];
+
+  // Karte initialisieren
+  const map = L.map('map', {
+    center: [50.0, 10.0],
+    zoom: 4,
+    minZoom: 3,
+    maxZoom: 12,
+    dragging: true,
+    scrollWheelZoom: true,
+    tap: true
+  });
+
+  // OpenStreetMap Tiles (kostenfrei)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    noWrap: false
+  }).addTo(map);
+
+  // Custom pin style (CSS via divIcon)
+  function createPinHTML() {
+    return `<div style="
+      width:18px;height:18px;border-radius:50%;
+      background:#000;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.18);
+    "></div>`;
+  }
+
+  points.forEach(pt => {
+    const marker = L.marker([pt.lat, pt.lng], {
+      icon: L.divIcon({
+        className: '',
+        html: createPinHTML(),
+        iconSize: [18,18],
+        iconAnchor: [9, 9]
+      })
+    }).addTo(map);
+
+    // Tooltip on hover
+    marker.bindTooltip(pt.city, {permanent:false, direction:'top', offset:[0,-10], opacity:0.95});
+
+    // Popup on click
+    marker.on('click', () => {
+      const photoHtml = (pt.photos || []).slice(0,3).map(src => `<img src="${src}" alt="${pt.city}" />`).join('');
+      const popupContent = `
+        <div>
+          <div class="city-label">${pt.title} — ${pt.year}</div>
+          <div style="font-size:13px;color:#444;">${pt.description}</div>
+          <div class="popup-photos">${photoHtml}</div>
+          <a href="work/buying-and-fairs/${pt.id}" style="display:inline-block;margin-top:8px;font-size:13px;color:#0b6cfb;text-decoration:none;">Mehr zum Besuch</a>
+        </div>`;
+      marker.bindPopup(popupContent, {maxWidth:320}).openPopup();
+    });
+  });
+
+  // Optional: Fit bounds to pins on load for best view
+  const latlngs = points.map(p => [p.lat, p.lng]);
+  const bounds = L.latLngBounds(latlngs);
+  map.fitBounds(bounds.pad(0.25));
+
+  // Enable keyboard accessibility: focus map on click
+  map.on('click', () => map.getContainer().focus());
+</script>
+</body>
+</html>
