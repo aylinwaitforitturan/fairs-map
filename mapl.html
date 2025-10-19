@@ -119,27 +119,20 @@
     .lanyard-badges{ display:flex; gap:8px; align-items:center; justify-content:center; }
     .react-badge{ font-size:12px; border-radius:8px; padding:6px 8px; background:linear-gradient(180deg,#edf6ff,#e6f0ff); border:1px solid #cfe6ff; color:#0b4076; font-weight:700; }
 
-    /* Circular Text (bottom left) */
-    #circular-root{
-      position:fixed;
-      left:18px;
-      bottom:18px;
-      z-index:1200;
-      pointer-events:none;
-    }
-    .circular-wrap{
-      width:180px; height:180px;
-      display:block;
-      opacity:0.92;
-    }
+    /* Circular Text (bottom left) – schwarz, fett, modern, Glitch + Flugzeug */
+    #circular-root{ position:fixed; left:18px; bottom:18px; z-index:1200; pointer-events:none; }
+    .circular-wrap{ width:180px; height:180px; display:block; }
     .circular-svg{ width:100%; height:100%; }
     .circular-text{
       font-family:"Helvetica Neue", Inter, system-ui, Arial, sans-serif;
-      font-size:12px;
-      letter-spacing:2px;
-      text-transform:uppercase;
-      fill:var(--ink);
+      font-size:14px; font-weight:800; letter-spacing:2.2px; text-transform:uppercase; fill:#000;
     }
+    .circular-text.glitch-a{ animation:glitchA 2.2s infinite steps(2,end); }
+    .circular-text.glitch-b{ animation:glitchB 2.2s infinite steps(2,end); opacity:.9; }
+    svg defs filter#glitch-fx feTurbulence{ baseFrequency:0.005 0.008; numOctaves:1; seed:2; }
+    @keyframes glitchA { 0%,96%,100%{transform:none;filter:none;} 97%{transform:translateX(1px);filter:url(#glitch-fx);} 98%{transform:translateX(-1px);} 99%{transform:translateX(.5px);} }
+    @keyframes glitchB { 0%,96%,100%{transform:none;filter:none;} 97%{transform:translateY(-1px);filter:url(#glitch-fx);} 98%{transform:translateY(1px);} 99%{transform:translateY(-.5px);} }
+    .circular-plane{ fill:#000; opacity:.95; transform-origin:90px 90px; }
 
     @media (max-width:1100px){
       .legend,.timeline{ display:none; }
@@ -200,7 +193,6 @@
         style:()=>baseStyle,
         onEachFeature:(f,lyr)=>{
           const b=lyr.getBounds();
-          // Europa grob begrenzen
           if(b && (b.getSouth()>30 && b.getNorth()<72 && b.getWest()>-25 && b.getEast()<40)){
             lyr.on('mouseover',()=>{ const p=lyr.getElement(); if(p){ p.classList.add('hovered-country'); } lyr.bringToFront(); });
             lyr.on('mouseout', ()=>{ const p=lyr.getElement(); if(p){ p.classList.remove('hovered-country'); } });
@@ -218,11 +210,10 @@
     return `<span class="stars">${Array(full).fill(0).map(star).join('')}${halfStar}${Array(empty).fill(0).map(star).join('')}</span>`;
   }
 
-  /* Daten – vollständige Liste aus unseren letzten Schritten */
+  /* Daten – vollständige Liste */
   const points = [
     /* 2024 */
-    {
-      id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", year:"2024",
+    { id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", year:"2024",
       city:"München", country:"Germany", lat:48.1351, lng:11.5820,
       address:"MOC, Lilienthalallee 40, 80939 München, Germany",
       airport:"MUC — Munich Airport, 28 km",
@@ -231,12 +222,10 @@
       logos:["/logos/bervic.svg","/logos/calpier.svg","/logos/armor-lux.svg"],
       guide:{ food:[P("Tantris Maison Culinaire","(Ikone der Münchner Gastronomie)","https://tantris.de",4.8),P("Brenner Grill","(Modernes Grillhaus an der Maximilianstraße)","https://brennergrill.de",4.4)],
               hotels:[P("Andaz Munich Schwabinger Tor","(Designhotel, gut angebunden)","https://www.hyatt.com",4.6),P("Ruby Lilly","(Boutique, urban)","https://www.ruby-hotels.com",4.2)],
-              spots:[P("Pinakothek der Moderne","(Design & Architektur)","https://www.pinakothek.de",4.7),P("Englischer Garten","(Spaziergang & Eisbachwelle)","https://www.muenchen.de",4.6)] }
-    },
+              spots:[P("Pinakothek der Moderne","(Design & Architektur)","https://www.pinakothek.de",4.7),P("Englischer Garten","(Spaziergang & Eisbachwelle)","https://www.muenchen.de",4.6)] } },
 
     /* 2023 */
-    {
-      id:"riva_2023", title:"Expo Riva Shoe", date:"06.2023", year:"2023",
+    { id:"riva_2023", title:"Expo Riva Shoe", date:"06.2023", year:"2023",
       city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
       address:"Quartiere Fieristico, Via Baltera 20, 38066 Riva del Garda TN, Italy",
       airport:"VRN — Verona Airport, 85 km",
@@ -245,10 +234,9 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Osteria La Contrada","(Regionale Küche am See)","https://example.com",4.5),P("Ristorante Panem","(Brot & lokale Spezialitäten)","https://example.com",4.3)],
               hotels:[P("Du Lac et Du Parc Grand Resort","(Am See, Parkanlage)","https://example.com",4.6),P("Hotel Sole Relax & Panorama","(Altstadtlage, Seeblick)","https://example.com",4.4)],
-              spots:[P("Monte Brione","(Aussicht & Trails)","https://example.com",4.6),P("Varone Wasserfall","(Natur-Spot)","https://example.com",4.5)] }
-    },
-    {
-      id:"pitti_2023", title:"Pitti Uomo", date:"06.2023", year:"2023",
+              spots:[P("Monte Brione","(Aussicht & Trails)","https://example.com",4.6),P("Varone Wasserfall","(Natur-Spot)","https://example.com",4.5)] } },
+
+    { id:"pitti_2023", title:"Pitti Uomo", date:"06.2023", year:"2023",
       city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
       address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy",
       airport:"FLR — Florence Airport, 6 km",
@@ -257,10 +245,9 @@
       logos:["/logos/armor-lux.svg","/logos/bervic.svg"],
       guide:{ food:[P("Trattoria Mario","(Florentinische Küche; mittags heiß begehrt)","https://goo.gl/maps/xxxx",4.6),P("La Ménagère","(Stylish, modern)","https://lamenagere.it",4.5)],
               hotels:[P("Hotel Glance","(Nahe Fortezza, modern)","https://www.glancehotelflorence.com",4.4),P("Grand Hotel Minerva","(Piazza Santa Maria Novella)","https://www.grandhotelminerva.com",4.6)],
-              spots:[P("Uffizien","(Renaissance-Kunst)","https://www.uffizi.it",4.8),P("Piazzale Michelangelo","(Sunset-View)","https://goo.gl/maps/xxxx",4.7)] }
-    },
-    {
-      id:"frankfurt_2023", title:"Heimtextil", date:"01.2023", year:"2023",
+              spots:[P("Uffizien","(Renaissance-Kunst)","https://www.uffizi.it",4.8),P("Piazzale Michelangelo","(Sunset-View)","https://goo.gl/maps/xxxx",4.7)] } },
+
+    { id:"frankfurt_2023", title:"Heimtextil", date:"01.2023", year:"2023",
       city:"Frankfurt", country:"Germany", lat:50.1109, lng:8.6821,
       address:"Messe Frankfurt, Hall 11, 60327 Frankfurt am Main, Germany",
       airport:"FRA — Frankfurt Airport, 5 km",
@@ -269,12 +256,10 @@
       logos:["/logos/bervic.svg","/logos/calpier.svg","/logos/armor-lux.svg"],
       guide:{ food:[P("Stanley Diamond","(Moderne Küche)","https://example.com",4.6),P("Apfelwein Wagner","(Regional)","https://example.com",4.4)],
               hotels:[P("25hours The Goldman","(Design)","https://www.25hours-hotels.com",4.4),P("Scandic Frankfurt Museumsufer","(Rheinblick)","https://www.scandichotels.com",4.3)],
-              spots:[P("Städel Museum","(Kunst)","https://www.staedelmuseum.de",4.8),P("Mainufer","(Walks)","https://example.com",4.6)] }
-    },
+              spots:[P("Städel Museum","(Kunst)","https://www.staedelmuseum.de",4.8),P("Mainufer","(Walks)","https://example.com",4.6)] } },
 
     /* 2022 */
-    {
-      id:"cosmoprof_2022", title:"COSMOPROF", date:"04.2022", year:"2022",
+    { id:"cosmoprof_2022", title:"COSMOPROF", date:"04.2022", year:"2022",
       city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
       address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy",
       airport:"BLQ — Bologna Airport, 8 km",
@@ -283,10 +268,9 @@
       logos:["/logos/calpier.svg"],
       guide:{ food:[P("Trattoria di Via Serra","(Regional & herzlich)","https://example.com",4.7),P("Sfoglia Rina","(Pasta-Manufaktur)","https://example.com",4.6)],
               hotels:[P("Aemilia Hotel","(Modern, zentrumsnah)","https://example.com",4.4),P("I Portici","(Historisches Flair)","https://example.com",4.5)],
-              spots:[P("Le Due Torri","(Wahrzeichen)","https://example.com",4.6),P("Quadrilatero Markt","(Food-Kultur)","https://example.com",4.5)] }
-    },
-    {
-      id:"cosmopack_2022", title:"COSMOPACK", date:"04.2022", year:"2022",
+              spots:[P("Le Due Torri","(Wahrzeichen)","https://example.com",4.6),P("Quadrilatero Markt","(Food-Kultur)","https://example.com",4.5)] } },
+
+    { id:"cosmopack_2022", title:"COSMOPACK", date:"04.2022", year:"2022",
       city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
       address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy",
       airport:"BLQ — Bologna Airport, 8 km",
@@ -295,10 +279,9 @@
       logos:["/logos/calpier.svg"],
       guide:{ food:[P("Osteria dell'Orsa","(Bologna-Classic)","https://example.com",4.5),P("Drogheria della Rosa","(Romantisch, regional)","https://example.com",4.6)],
               hotels:[P("Royal Hotel Carlton","(Businessfreundlich)","https://example.com",4.3),P("NH Bologna de la Gare","(Zentral)","https://example.com",4.2)],
-              spots:[P("Portici von Bologna","(Kilometerlange Arkaden)","https://example.com",4.7),P("Santo Stefano Komplex","(Sieben Kirchen)","https://example.com",4.6)] }
-    },
-    {
-      id:"maisonobjet_paris_2022", title:"Maison&Objet", date:"03.2022", year:"2022",
+              spots:[P("Portici von Bologna","(Kilometerlange Arkaden)","https://example.com",4.7),P("Santo Stefano Komplex","(Sieben Kirchen)","https://example.com",4.6)] } },
+
+    { id:"maisonobjet_paris_2022", title:"Maison&Objet", date:"03.2022", year:"2022",
       city:"Paris", country:"France", lat:48.972, lng:2.519,
       address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
       airport:"CDG — Charles de Gaulle, 8 km",
@@ -307,12 +290,10 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Le Train Bleu","(Belle Époque, Gare de Lyon)","https://www.le-train-bleu.com",4.6),P("Frenchie","(Moderne französische Küche)","https://www.frenchie-restaurant.com",4.7)],
               hotels:[P("Okko Hotels Paris Gare de l'Est","(Modern & praktisch)","https://okkohotels.com",4.3),P("CitizenM CDG","(Direkt am Flughafen)","https://www.citizenm.com",4.2)],
-              spots:[P("Centre Pompidou","(Kunst & Design)","https://www.centrepompidou.fr",4.7),P("Parc de la Villette","(Kulturareal)","https://lavillette.com",4.5)] }
-    },
+              spots:[P("Centre Pompidou","(Kunst & Design)","https://www.centrepompidou.fr",4.7),P("Parc de la Villette","(Kulturareal)","https://lavillette.com",4.5)] } },
 
     /* 2021 */
-    {
-      id:"micam_milan_2021", title:"MICAM", date:"09.2021", year:"2021",
+    { id:"micam_milan_2021", title:"MICAM", date:"09.2021", year:"2021",
       city:"Mailand", country:"Italy", lat:45.518, lng:9.103,
       address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy",
       airport:"MXP — Milano Malpensa, 45 km",
@@ -321,10 +302,9 @@
       logos:["/logos/bervic.svg","/logos/calpier.svg"],
       guide:{ food:[P("Trippa Milano","(Neo-Trattoria)","https://trippa.it",4.7),P("Ratanà","(Modern lombardisch)","https://ratana.it",4.6)],
               hotels:[P("nhow Milano","(Designhotel, Tortona)","https://www.nhow-hotels.com",4.3),P("UNAHOTELS Expo Fiera","(Nähe Rho)","https://www.gruppouna.it",4.2)],
-              spots:[P("Fondazione Prada","(Kunst & Architektur)","https://www.fondazioneprada.org",4.7),P("Navigli","(Abend am Kanal)","https://example.com",4.5)] }
-    },
-    {
-      id:"pitti100", title:"Pitti Uomo 100", date:"07.2021", year:"2021",
+              spots:[P("Fondazione Prada","(Kunst & Architektur)","https://www.fondazioneprada.org",4.7),P("Navigli","(Abend am Kanal)","https://example.com",4.5)] } },
+
+    { id:"pitti100", title:"Pitti Uomo 100", date:"07.2021", year:"2021",
       city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
       address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy",
       airport:"FLR — Florence Airport, 6 km",
@@ -333,10 +313,9 @@
       logos:["/logos/armor-lux.svg"],
       guide:{ food:[P("Enoteca Pitti Gola e Cantina","(Weinbar am Palazzo Pitti)","https://www.pittigolaecantina.com",4.6),P("All’Antico Vinaio","(Panini-Kult)","https://allanticovinaio.com",4.5)],
               hotels:[P("Hotel L’Orologio","(Zentral, klassisch)","https://www.hotelorologioflorence.com",4.4),P("Portrait Firenze","(Luxus an der Arno)","https://www.lungarnocollection.com",4.7)],
-              spots:[P("Galleria dell’Accademia","(Michelangelos David)","https://www.galleriaaccademiafirenze.it",4.8),P("Giardino Bardini","(Garten & Aussicht)","https://www.bardinipeyron.it",4.6)] }
-    },
-    {
-      id:"nordstil_hh", title:"Nordstil", date:"07.2021", year:"2021",
+              spots:[P("Galleria dell’Accademia","(Michelangelos David)","https://www.galleriaaccademiafirenze.it",4.8),P("Giardino Bardini","(Garten & Aussicht)","https://www.bardinipeyron.it",4.6)] } },
+
+    { id:"nordstil_hh", title:"Nordstil", date:"07.2021", year:"2021",
       city:"Hamburg", country:"Germany", lat:53.5586, lng:9.9836,
       address:"Hamburg Messe, Messeplatz 1, 20357 Hamburg, Germany",
       airport:"HAM — Hamburg Airport, 9 km",
@@ -345,12 +324,10 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Bullerei","(Schanzen-Klassiker)","https://www.bullerei.com",4.5),P("NENI Hamburg","(Hausmannskost modern)","https://www.25hours-hotels.com",4.4)],
               hotels:[P("Mövenpick Hotel Sternschanze","(Direkt an der Messe)","https://www.movenpick.com",4.4),P("25hours HafenCity","(Design & Storytelling)","https://www.25hours-hotels.com",4.5)],
-              spots:[P("Elbphilharmonie","(Architektur-Ikone)","https://www.elbphilharmonie.de",4.8),P("Planten un Blomen","(Park & Wasserspiele)","https://www.hamburg.de/parkanlagen/1832196/plantenunblomen",4.6)] }
-    },
+              spots:[P("Elbphilharmonie","(Architektur-Ikone)","https://www.elbphilharmonie.de",4.8),P("Planten un Blomen","(Park & Wasserspiele)","https://www.hamburg.de/parkanlagen/1832196/plantenunblomen",4.6)] } },
 
     /* 2020 */
-    {
-      id:"ciff_cph", title:"CIFF — Copenhagen Int. Fashion Fair", date:"08.2020", year:"2020",
+    { id:"ciff_cph", title:"CIFF — Copenhagen Int. Fashion Fair", date:"08.2020", year:"2020",
       city:"Kopenhagen", country:"Denmark", lat:55.632, lng:12.578,
       address:"Bella Center, Center Blvd. 5, 2300 København, Denmark",
       airport:"CPH — Kastrup, 6 km",
@@ -359,10 +336,9 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Kødbyens Fiskebar","(Seafood im Meatpacking)","https://fiskebaren.dk",4.6),P("Høst","(Nordische Küche, Design)","https://cofoco.dk/en/restaurants/hoest",4.7)],
               hotels:[P("Hotel SP34","(Boutique im Zentrum)","https://brochner-hotels.dk/sp34",4.4),P("AC Bella Sky","(Direkt am Bella Center)","https://www.marriott.com",4.3)],
-              spots:[P("Louisiana Museum","(Kunst & Meer)","https://louisiana.dk",4.8),P("Superkilen Park","(Urban Design)","https://example.com",4.6)] }
-    },
-    {
-      id:"supreme_dus", title:"Supreme Women&Men", date:"07.2020", year:"2020",
+              spots:[P("Louisiana Museum","(Kunst & Meer)","https://louisiana.dk",4.8),P("Superkilen Park","(Urban Design)","https://example.com",4.6)] } },
+
+    { id:"supreme_dus", title:"Supreme Women&Men", date:"07.2020", year:"2020",
       city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
       address:"B1 Fashion, Bennigsen-Platz 1, 40474 Düsseldorf, Germany",
       airport:"DUS — Düsseldorf Airport, 6 km",
@@ -371,10 +347,9 @@
       logos:["/logos/calpier.svg"],
       guide:{ food:[P("Brauerei Schumacher","(Altbier & rheinische Küche)","https://www.schumacher-alt.de",4.5),P("Takumi","(Ramen-Kult)","https://takumi.de",4.4)],
               hotels:[P("me and all hotel","(Design, Japanviertel)","https://www.meandallhotels.com",4.4),P("25hours Das Tour","(Französischer Twist)","https://www.25hours-hotels.com",4.5)],
-              spots:[P("Rheinpromenade","(Spaziergang)","https://example.com",4.6),P("Kunstsammlung K20","(Moderne Kunst)","https://www.kunstsammlung.de",4.7)] }
-    },
-    {
-      id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020", year:"2020",
+              spots:[P("Rheinpromenade","(Spaziergang)","https://example.com",4.6),P("Kunstsammlung K20","(Moderne Kunst)","https://www.kunstsammlung.de",4.7)] } },
+
+    { id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020", year:"2020",
       city:"Paris", country:"France", lat:48.864, lng:2.332,
       address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France",
       airport:"CDG — Charles de Gaulle, 27 km",
@@ -383,12 +358,10 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Verjus","(Bistronomie & Weinbar)","https://verjusparis.com",4.6),P("Au Passage","(Moderne kleine Gerichte)","https://aupassageparis.fr",4.5)],
               hotels:[P("Hotel Louvre Saint-Honoré","(Louvre-Nähe)","https://www.hotellouvresainthonore.com",4.2),P("Hotel du Louvre","(Hyatt – klassisch)","https://www.hyatt.com",4.5)],
-              spots:[P("Tuilerien & Louvre","(Spaziergang & Kunst)","https://www.louvre.fr",4.8),P("Palais Royal","(Gärten & Arkaden)","https://www.domaine-palais-royal.fr",4.6)] }
-    },
+              spots:[P("Tuilerien & Louvre","(Spaziergang & Kunst)","https://www.louvre.fr",4.8),P("Palais Royal","(Gärten & Arkaden)","https://www.domaine-palais-royal.fr",4.6)] } },
 
     /* 2019 */
-    {
-      id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019", year:"2019",
+    { id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019", year:"2019",
       city:"London", country:"United Kingdom", lat:51.495, lng:-0.210,
       address:"Olympia London, Hammersmith Rd, London W14 8UX, UK",
       airport:"LHR — Heathrow, 20 km",
@@ -397,10 +370,9 @@
       logos:["/logos/armor-lux.svg"],
       guide:{ food:[P("Dishoom Kensington","(Bombay Café)","https://www.dishoom.com",4.6),P("Sticks'n'Sushi","(Nordic-Japan)","https://sticksnsushi.com",4.5)],
               hotels:[P("K West Hotel","(Shepherd’s Bush)","https://www.k-west.co.uk",4.1),P("The Resident Kensington","(Boutique)","https://www.residenthotels.com",4.4)],
-              spots:[P("Design Museum","(Architektur & Design)","https://designmuseum.org",4.7),P("Holland Park Kyoto Garden","(Ruhe-Spot)","https://www.rbkc.gov.uk",4.6)] }
-    },
-    {
-      id:"whosnext_ldn", title:"Who’s Next?", date:"09.2019", year:"2019",
+              spots:[P("Design Museum","(Architektur & Design)","https://designmuseum.org",4.7),P("Holland Park Kyoto Garden","(Ruhe-Spot)","https://www.rbkc.gov.uk",4.6)] } },
+
+    { id:"whosnext_ldn", title:"Who’s Next?", date:"09.2019", year:"2019",
       city:"London", country:"United Kingdom", lat:51.508, lng:-0.028,
       address:"ExCeL London, 1 Western Gateway, London E16 1XL, UK",
       airport:"LCY — London City, 4 km",
@@ -409,10 +381,9 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("ROKA Canary Wharf","(Robata Grill)","https://www.rokarestaurant.com",4.6),P("Plateau","(Modern European)","https://www.plateau-restaurant.co.uk",4.4)],
               hotels:[P("Good Hotel London","(Floating hotel)","https://www.goodhotellondon.com",4.2),P("Aloft London Excel","(Direkt am Messegelände)","https://www.marriott.com",4.3)],
-              spots:[P("Greenwich Park","(Blick auf City)","https://www.royalparks.org.uk",4.7),P("Thames Path","(Riverside Walk)","https://www.nationaltrail.co.uk",4.6)] }
-    },
-    {
-      id:"tranoi_paris_2019", title:"TRANOÏ", date:"09.2019", year:"2019",
+              spots:[P("Greenwich Park","(Blick auf City)","https://www.royalparks.org.uk",4.7),P("Thames Path","(Riverside Walk)","https://www.nationaltrail.co.uk",4.6)] } },
+
+    { id:"tranoi_paris_2019", title:"TRANOÏ", date:"09.2019", year:"2019",
       city:"Paris", country:"France", lat:48.864, lng:2.332,
       address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France",
       airport:"CDG — Charles de Gaulle, 27 km",
@@ -421,10 +392,9 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Septime","(Moderne Küche)","https://septime-charonne.fr",4.8),P("Buvette Paris","(Brunch & Wein)","https://ilovebuvette.com",4.5)],
               hotels:[P("Hôtel des Grands Boulevards","(Trendy)","https://www.grandsboulevards.com",4.5),P("Hôtel Crayon Rouge","(Boutique)","https://www.lecrayon.com",4.3)],
-              spots:[P("Musée d’Orsay","(Impressionismus)","https://www.musee-orsay.fr",4.8),P("Canal Saint-Martin","(Cafés & Flanieren)","https://example.com",4.6)] }
-    },
-    {
-      id:"maisonobjet_paris_2019", title:"Maison&Objet", date:"01.2019", year:"2019",
+              spots:[P("Musée d’Orsay","(Impressionismus)","https://www.musee-orsay.fr",4.8),P("Canal Saint-Martin","(Cafés & Flanieren)","https://example.com",4.6)] } },
+
+    { id:"maisonobjet_paris_2019", title:"Maison&Objet", date:"01.2019", year:"2019",
       city:"Paris", country:"France", lat:48.972, lng:2.519,
       address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
       airport:"CDG — Charles de Gaulle, 8 km",
@@ -433,12 +403,10 @@
       logos:["/logos/armor-lux.svg"],
       guide:{ food:[P("Clown Bar","(Natural Wine & Bistro)","https://clown-bar-paris.fr",4.6),P("Holybelly","(Café-Klassiker)","https://holybellycafe.com",4.5)],
               hotels:[P("Okko Hotels Rosny","(Budget-Design)","https://okkohotels.com",4.1),P("citizenM CDG","(Airport-Hotel)","https://www.citizenm.com",4.2)],
-              spots:[P("La Seine Musicale","(Architektur, Konzerte)","https://www.laseinemusicale.com",4.6),P("Atelier des Lumières","(Immersive Kunst)","https://www.atelier-lumieres.com",4.7)] }
-    },
+              spots:[P("La Seine Musicale","(Architektur, Konzerte)","https://www.laseinemusicale.com",4.6),P("Atelier des Lumières","(Immersive Kunst)","https://www.atelier-lumieres.com",4.7)] } },
 
     /* 2018 */
-    {
-      id:"micam_milan_2018", title:"MICAM", date:"09.2018", year:"2018",
+    { id:"micam_milan_2018", title:"MICAM", date:"09.2018", year:"2018",
       city:"Mailand", country:"Italy", lat:45.518, lng:9.103,
       address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy",
       airport:"MXP — Milano Malpensa, 45 km",
@@ -447,10 +415,9 @@
       logos:["/logos/calpier.svg"],
       guide:{ food:[P("Da Giacomo","(Mailänder Klassiker)","https://www.giacomo.it",4.6),P("Soulgreen","(Plant-based)","https://www.soulgreen.com",4.5)],
               hotels:[P("NH Collection Milano CityLife","(Neu & modern)","https://www.nh-collection.com",4.5),P("UNAHOTELS Expo Fiera","(Nähe Rho)","https://www.gruppouna.it",4.2)],
-              spots:[P("ADI Design Museum","(Italienisches Design)","https://www.adidesignmuseum.org",4.7),P("Brera","(Gassen & Galerien)","https://example.com",4.6)] }
-    },
-    {
-      id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018", year:"2018",
+              spots:[P("ADI Design Museum","(Italienisches Design)","https://www.adidesignmuseum.org",4.7),P("Brera","(Gassen & Galerien)","https://example.com",4.6)] } },
+
+    { id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018", year:"2018",
       city:"Berlin", country:"Germany", lat:52.5, lng:13.375,
       address:"STATION Berlin, Luckenwalder Str. 4–6, 10963 Berlin, Germany",
       airport:"BER — Berlin Brandenburg, 20 km",
@@ -459,10 +426,9 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Nobelhart & Schmutzig","(Regional radikal)","https://nobelhartundschmutzig.com",4.7),P("Coda Dessert Dining","(Dessert-Menü)","https://www.coda-berlin.de",4.7)],
               hotels:[P("Michelberger Hotel","(Kreative Community)","https://michelbergerhotel.com",4.5),P("25hours Bikini","(Urban Jungle)","https://www.25hours-hotels.com",4.6)],
-              spots:[P("Hamburger Bahnhof","(Moderne Kunst)","https://www.smb.museum",4.7),P("Tempelhofer Feld","(Weite & Urbanität)","https://www.thf-berlin.de",4.6)] }
-    },
-    {
-      id:"seek_berlin", title:"SEEK", date:"01.2018", year:"2018",
+              spots:[P("Hamburger Bahnhof","(Moderne Kunst)","https://www.smb.museum",4.7),P("Tempelhofer Feld","(Weite & Urbanität)","https://www.thf-berlin.de",4.6)] } },
+
+    { id:"seek_berlin", title:"SEEK", date:"01.2018", year:"2018",
       city:"Berlin", country:"Germany", lat:52.5, lng:13.45,
       address:"Arena Berlin, Eichenstr. 4, 12435 Berlin, Germany",
       airport:"BER — Berlin Brandenburg, 18 km",
@@ -471,12 +437,10 @@
       logos:["/logos/armor-lux.svg"],
       guide:{ food:[P("Burgermeister","(Ikonischer Burger)","https://www.burger-meister.de",4.5),P("Benedict","(24/7 Breakfast)","https://www.benedict-breakfast.de",4.4)],
               hotels:[P("nhow Berlin","(Musik-Hotel)","https://www.nhow-hotels.com",4.3),P("Orania.Berlin","(Design & Jazz)","https://orania.berlin",4.6)],
-              spots:[P("East Side Gallery","(Mauer-Kunst)","https://www.eastsidegalleryberlin.com",4.7),P("Badeschiff","(Spree-Pool)","https://arena.berlin/venues/badeschiff",4.5)] }
-    },
+              spots:[P("East Side Gallery","(Mauer-Kunst)","https://www.eastsidegalleryberlin.com",4.7),P("Badeschiff","(Spree-Pool)","https://arena.berlin/venues/badeschiff",4.5)] } },
 
     /* 2017 */
-    {
-      id:"panorama_berlin_2017", title:"Panorama Berlin", date:"01.2017", year:"2017",
+    { id:"panorama_berlin_2017", title:"Panorama Berlin", date:"01.2017", year:"2017",
       city:"Berlin", country:"Germany", lat:52.51, lng:13.375,
       address:"Messe Berlin, Messedamm 22, 14055 Berlin, Germany",
       airport:"BER — Berlin Brandenburg, 28 km",
@@ -485,8 +449,7 @@
       logos:["/logos/bervic.svg"],
       guide:{ food:[P("Paris-Moskau","(Klassiker am Park)","https://www.parismoskau.de",4.4),P("Katz Orange","(Slow Food)","https://www.katzorange.com",4.6)],
               hotels:[P("AMANO Grand Central","(Am Hbf)","https://www.amanogroup.de",4.3),P("Steigenberger am Kanzleramt","(Business, Blick)","https://www.steigenberger.com",4.5)],
-              spots:[P("Siegessäule & Tiergarten","(Spaziergang)","https://www.stiftung-denkmal.de",4.6),P("Bikini Berlin","(Concept Mall)","https://www.bikiniberlin.de",4.5)] }
-    }
+              spots:[P("Siegessäule & Tiergarten","(Spaziergang)","https://www.stiftung-denkmal.de",4.6),P("Bikini Berlin","(Concept Mall)","https://www.bikiniberlin.de",4.5)] } }
   ];
 
   /* City Guide */
@@ -528,7 +491,6 @@
 
   const routeLayer = L.layerGroup().addTo(map);
   const HAMBURG = [53.5511, 9.9937];
-  let lastPoint = null;
 
   function drawSegment(from, to){
     L.polyline([from, to], { color:'#0E3B2E', weight:1.6, opacity:0.6, dashArray:'6,8' }).addTo(routeLayer);
@@ -588,7 +550,7 @@
     render();
   }
 
-  /* Create markers */
+  /* Create markers + route logic */
   points.forEach(pt=>{
     const marker = L.marker([pt.lat, pt.lng], { icon:createPinIcon() }).addTo(map);
     marker.bindTooltip(pt.city, { direction:'top', offset:[0,-12], className:'custom-tooltip' });
@@ -600,10 +562,9 @@
       }, 60);
       updateLegend(pt);
       highlightYear(pt.year);
-      const from = window._lastPoint || HAMBURG; // Start Hamburg
+      const from = window._lastPoint || HAMBURG;
       drawSegment(from, [pt.lat, pt.lng]);
       window._lastPoint = [pt.lat, pt.lng];
-      // Update React Lanyard
       if(window.setLanyard) window.setLanyard(`${pt.title}`, `${pt.city} • ${pt.date}`);
     });
   });
@@ -625,10 +586,8 @@
     const [sub, setSub] = useState('Hamburg • Europe');
     const [qr, setQr] = useState(null);
 
-    // expose setter for Leaflet handlers
     useEffect(()=>{ window.setLanyard = (t,s)=>{ setTitle(t||'Buying & Fairs — Pass'); setSub(s||'Hamburg • Europe'); }; },[]);
 
-    // random spotify QR on mount
     useEffect(()=>{
       const tracks = ['3n3Ppam7vgaVa1iaRUc9Lp','7ouMYWpwJ422jRcDASZB7P','1dGr1c8CrMLDpV6mPbImSI','2TakcwOaAZWiXQijPHIx7B'];
       const id = tracks[Math.floor(Math.random()*tracks.length)];
@@ -637,7 +596,6 @@
       setQr({img:q, url});
     },[]);
 
-    // physics (springy drag/drop)
     const wrapRef = useRef(null);
     const cardRef = useRef(null);
     const animRef = useRef({ x:0, y:0, vx:0, vy:0, tx:0, ty:0, dragging:false });
@@ -662,8 +620,8 @@
       function onMove(e){
         if(animRef.current.dragging) return;
         const r = root.getBoundingClientRect();
-        const x = Math.max(-40, Math.min(40, e.clientX - (r.left + r.width/2)));
-        const y = Math.max(-10, Math.min(40, e.clientY - (r.top + 60 + 135)));
+        const x = clamp(e.clientX - (r.left + r.width/2), cfg.range.x);
+        const y = clamp(e.clientY - (r.top + 60 + 135), cfg.range.y);
         animRef.current.tx = x; animRef.current.ty = y;
       }
       window.addEventListener('mousemove', onMove);
@@ -715,27 +673,28 @@
   }
 
   function CircularText({
-    text = "Visited Fairs — European Journeys — ",
-    size = 180,
+    text = "visited fairs — european journey — ",
     radius = 70,
     speed = 18,
     reverse = false
   }){
-    const [paused, setPaused] = React.useState(false);
     const pathId = React.useId();
-    const content = (text.repeat(4)).slice(0, 120);
+    const content = (text.repeat(4)).slice(0, 140);
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const dur = reduce ? 0 : speed;
 
     return (
       <div className="circular-wrap">
-        <svg className="circular-svg" viewBox="0 0 180 180"
-             onMouseEnter={()=>setPaused(true)}
-             onMouseLeave={()=>setPaused(false)}>
+        <svg className="circular-svg" viewBox="0 0 180 180" role="img" aria-label="Visited fairs circular text with airplane icon">
           <defs>
             <path id={pathId}
                   d={`M 90,90 m -${radius},0 a ${radius},${radius} 0 1,1 ${radius*2},0 a ${radius},${radius} 0 1,1 -${radius*2},0`} />
+            <filter id="glitch-fx">
+              <feTurbulence type="fractalNoise" baseFrequency="0.006 0.01" numOctaves="1" seed="3" />
+              <feDisplacementMap in="SourceGraphic" scale="2" />
+            </filter>
           </defs>
+
           <g>
             <animateTransform
               attributeName="transform"
@@ -745,15 +704,18 @@
               to={reverse ? "0 90 90" : "360 90 90"}
               dur={`${dur}s`}
               repeatCount="indefinite"
-              begin="0s"
-              fill="freeze"
-              id="rotAnim"
             />
-            <text className="circular-text">
-              <textPath href={`#${pathId}`} startOffset="0%">
-                {content}
-              </textPath>
+            <text className="circular-text glitch-a">
+              <textPath href={`#${pathId}`} startOffset="0%">{content}</textPath>
             </text>
+            <text className="circular-text glitch-b">
+              <textPath href={`#${pathId}`} startOffset="0%">{content}</textPath>
+            </text>
+          </g>
+
+          <!-- Flugzeug in der Mitte -->
+          <g className="circular-plane" transform="translate(90 90)">
+            <path d="M0 -18 L4 -2 L18 0 L18 4 L4 2 L0 18 L-2 18 L-1 2 L-18 4 L-18 0 L-1 -2 L-2 -18 Z" />
           </g>
         </svg>
       </div>
@@ -762,7 +724,7 @@
 
   ReactDOM.createRoot(document.getElementById('lanyard-root')).render(<Lanyard />);
   ReactDOM.createRoot(document.getElementById('circular-root')).render(
-    <CircularText text="Visited Fairs — European Journeys — " size={180} radius={70} speed={18} />
+    <CircularText text="visited fairs — european journey — " radius={70} speed={18} />
   );
 </script>
 
