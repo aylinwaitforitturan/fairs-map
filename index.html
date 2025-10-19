@@ -10,18 +10,21 @@
   <style>
     :root{
       --bg:#F2EEE6;          /* Beige Grund */
-      --ink:#0E3B2E;         /* Dunkelgrün */
+      --ink:#0E3B2E;         /* Dunkelgrün (Schrift) */
       --muted:#6B7A73;       /* Gedämpftes Grün-Grau */
-      --pin:#7A0019;         /* Bordeauxrot */
-      --white:#FFFFFF;
-      --border:#9BA8A2;      /* feine Landesgrenzen */
+      --pin:#7A0019;         /* Bordeaux */
+      --border:#9BA8A2;      /* Landesgrenzen */
       --hover:#E7E1D6;       /* Hover-Füllung */
+      --panel:#FFFFFF;       /* Panels */
+      --shadow:0 14px 36px rgba(0,0,0,0.14);
     }
+    *{ box-sizing:border-box; }
     html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
-    body { font-family: "Helvetica Neue", Inter, system-ui, Arial, sans-serif; }
+    body { font-family: "Helvetica Neue", Inter, system-ui, Arial, sans-serif; letter-spacing:0.01em; }
 
-    #map { width:100%; height:100vh; min-height:520px; }
+    #map { width:100%; height:100vh; min-height:580px; }
 
+    /* Header */
     .map-header {
       position:absolute; top:18px; left:18px; z-index:800;
       background:rgba(255,255,255,0.92); color:var(--ink);
@@ -32,64 +35,108 @@
       margin:0; font-size:15px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700;
     }
     .map-header p { margin:6px 0 0; font-size:13px; color:var(--muted); letter-spacing:0.04em; }
-    @media (max-width:700px){ .map-header { left:12px; right:12px; padding:10px; } }
 
-    /* Tiles clean/minimal (die Label-Ebene kommt separat) */
+    /* Sidebar / Legende rechts */
+    .legend {
+      position:absolute; top:18px; right:18px; width:310px; max-width:35vw; z-index:850;
+      background:var(--panel); border:1px solid rgba(0,0,0,0.06); border-radius:14px;
+      box-shadow:var(--shadow); padding:14px 16px;
+    }
+    .legend h4{
+      margin:0 0 8px; font-size:13px; letter-spacing:0.14em; text-transform:uppercase; font-weight:800;
+    }
+    .legend .meta { font-size:12.5px; color:var(--muted); margin-bottom:6px; }
+    .legend .group{ margin-top:12px; }
+    .legend .group h5{ margin:0 0 8px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#5e6a64; }
+    .legend ul{ margin:0; padding:0; list-style:none; display:grid; gap:8px; }
+    .legend li{ font-size:13px; line-height:1.35; }
+    .legend a{ color:var(--pin); text-decoration:none; }
+    .legend .empty{ color:#b1aba0; font-size:12px; }
+
+    /* Tiles minimal (Labels kommen separat) */
     .leaflet-tile { filter: grayscale(100%) contrast(1.04) brightness(1.06) sepia(0.08); }
 
     /* Popup */
-    .leaflet-popup-content { max-width: 600px; color:var(--ink); margin: 8px 12px; }
-    .city-label { font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin:0 0 8px; font-size:14px; }
-    .meta { display:flex; gap:12px; font-size:12.5px; color:var(--muted); margin:0 0 10px; }
-    .meta span { white-space:nowrap; }
+    .leaflet-popup-content { max-width: 680px; color:var(--ink); margin: 8px 12px; }
+    .title-line { display:flex; align-items:center; gap:10px; }
+    .title-line .city-label { font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin:0; font-size:15px; }
+    .meta-line { display:flex; gap:14px; font-size:12.5px; color:var(--muted); margin:6px 0 10px; flex-wrap:wrap; }
+    .meta-line span { white-space:nowrap; }
 
-    /* Galerie (groß, swipebar) */
+    /* Galerie groß & swipebar */
     .gallery {
-      position: relative; width: 100%; max-width: 560px; height: 360px;
-      border-radius: 12px; overflow: hidden; background: #000;
-      box-shadow: 0 16px 30px rgba(0,0,0,0.18);
+      position: relative; width: 100%; max-width: 640px; height: 380px;
+      border-radius: 14px; overflow: hidden; background: #000;
+      box-shadow: var(--shadow);
       touch-action: pan-y;
     }
-    .gallery img {
-      width:100%; height:100%; object-fit: cover; display:block; user-select:none; -webkit-user-drag:none;
-    }
+    .gallery img { width:100%; height:100%; object-fit: cover; display:block; user-select:none; -webkit-user-drag:none; }
     .nav-btn{
       position:absolute; top:50%; transform:translateY(-50%);
-      width:44px; height:44px; border-radius:999px; border:1px solid rgba(255,255,255,0.4);
+      width:46px; height:46px; border-radius:999px; border:1px solid rgba(255,255,255,0.4);
       background:rgba(0,0,0,0.25); color:#fff; display:flex; align-items:center; justify-content:center;
       cursor:pointer; backdrop-filter: blur(1px);
     }
     .nav-btn:hover{ background:rgba(0,0,0,0.35); }
-    .nav-prev{ left:10px; }
-    .nav-next{ right:10px; }
+    .nav-prev{ left:12px; } .nav-next{ right:12px; }
     .nav-btn svg{ width:18px; height:18px; }
 
-    .desc { margin-top:10px; font-size:13.5px; color:var(--muted); line-height:1.5; }
+    .desc { margin-top:12px; font-size:13.8px; color:var(--muted); line-height:1.55; }
 
-    .logo-row{
-      margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;
+    .collab-head{
+      margin-top:12px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+      color:#5e6a64; font-weight:800;
     }
-    .logo-row img, .logo-ph {
-      width:84px; height:40px; object-fit:contain; background:#fff; border:1px solid #E3DED5; border-radius:8px;
-      box-shadow:0 6px 14px rgba(0,0,0,0.06);
+    .logo-row{ margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; }
+    .logo-row img, .logo-ph{
+      width:88px; height:40px; object-fit:contain; background:#fff; border:1px solid #E3DED5; border-radius:8px; box-shadow:0 6px 14px rgba(0,0,0,0.06);
     }
     .logo-ph{ display:flex; align-items:center; justify-content:center; color:#B6B0A4; font-size:11px; letter-spacing:0.06em; }
-
     .more-link { display:inline-block; margin-top:12px; font-size:13px; color:var(--pin); text-decoration:none; }
 
-    /* Labels-Pane über allem, nicht klickbar */
+    /* Panes */
     .leaflet-pane.leaflet-labels-pane { z-index: 650; pointer-events: none; }
-    /* Länder-Grenzen-Pane */
     .leaflet-pane.country-borders { z-index: 400; }
+
+    /* Tooltip */
+    .leaflet-tooltip { background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.06); color:var(--ink); border-radius:8px; box-shadow:0 8px 18px rgba(0,0,0,0.08); }
+
+    /* Flugroute */
+    .route { stroke:#111; stroke-opacity:0.4; stroke-width:2; stroke-dasharray:6 6; }
+    .plane { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
+    @media (max-width:900px){
+      .legend{ display:none; }
+      .map-header{ left:12px; right:12px; }
+    }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
+
 <div class="map-header">
   <h3>Buying & Fairs — European Journeys</h3>
   <p>Drag to move. Scroll to zoom. Click pins to view the gallery.</p>
 </div>
+
+<!-- Seiten-Legende (TripAdvisor-Stil) -->
+<aside class="legend" id="legend">
+  <h4>City Guide</h4>
+  <div class="meta" id="legend-meta">Wähle einen Messestandort.</div>
+
+  <div class="group">
+    <h5>Restaurants</h5>
+    <ul id="legend-food"><li class="empty">Noch keine Einträge</li></ul>
+  </div>
+  <div class="group">
+    <h5>Hotels</h5>
+    <ul id="legend-hotels"><li class="empty">Noch keine Einträge</li></ul>
+  </div>
+  <div class="group">
+    <h5>Spots & Experiences</h5>
+    <ul id="legend-spots"><li class="empty">Noch keine Einträge</li></ul>
+  </div>
+</aside>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -97,7 +144,7 @@
 <script>
   const safe = (u) => encodeURI(u);
 
-  /* ---------- Karte & Layer ---------- */
+  /* ---------- Karte ---------- */
   const map = L.map('map', {
     center: [50.0, 10.0],
     zoom: 4,
@@ -114,7 +161,7 @@
     noWrap:false
   }).addTo(map);
 
-  // Labels-Overlay (Länder- und Städtebeschriftungen)
+  // Labels-Overlay (Länder/Städte)
   map.createPane('labels');
   map.getPane('labels').classList.add('leaflet-labels-pane');
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
@@ -122,46 +169,31 @@
     pane: 'labels'
   }).addTo(map);
 
-  // Ländergrenzen (GeoJSON) – für Kontrast + Hover
+  // Länder-Grenzen & Hover
   map.createPane('country-borders');
   map.getPane('country-borders').classList.add('country-borders');
-
-  // Welt-GeoJSON (wir filtern in der Karte auf Europa via Bounding Box)
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
     .then(r => r.json())
     .then(geo => {
-      const style = {
-        color: getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#9BA8A2',
-        weight: 0.8,
-        opacity: 0.9,
-        fillColor: '#000',
-        fillOpacity: 0.02
-      };
-      const hoverStyle = {
-        weight: 1.4,
-        fillOpacity: 0.10,
-        fillColor: getComputedStyle(document.documentElement).getPropertyValue('--hover').trim() || '#E7E1D6'
-      };
-
-      const layer = L.geoJSON(geo, {
-        pane: 'country-borders',
-        style: (f) => style,
+      const style = { color:getCss('--border'), weight:0.9, opacity:0.9, fillColor:'#000', fillOpacity:0.02 };
+      const hover = { weight:1.5, fillOpacity:0.10, fillColor:getCss('--hover') };
+      L.geoJSON(geo, {
+        pane:'country-borders',
+        style: () => style,
         onEachFeature: (feature, layer) => {
-          // Nur Features im groben Europa-Ausschnitt interaktiv halten (schneller)
           const b = layer.getBounds();
-          if (b && (b.getSouth() > 35 && b.getNorth() < 72 && b.getWest() < 35 && b.getEast() > -25)) {
-            layer.on('mouseover', () => layer.setStyle(hoverStyle));
+          if (b && (b.getSouth()>35 && b.getNorth()<72 && b.getWest()<35 && b.getEast()>-25)) {
+            layer.on('mouseover', () => layer.setStyle(hover));
             layer.on('mouseout',  () => layer.setStyle(style));
-          } else {
-            layer.options.interactive = false;
-          }
+          } else layer.options.interactive = false;
         }
       }).addTo(map);
-    })
-    .catch(console.error);
+    });
+
+  function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
   /* ---------- Pins ---------- */
-  function pinSVG(size=22, color='#7A0019'){
+  function pinSVG(size=22, color=getCss('--pin')){
     const s = size;
     return `
       <svg width="${s}" height="${s*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -174,121 +206,87 @@
     return L.divIcon({ className:'pin', html: pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] });
   }
 
-  /* ---------- Datenpunkte: Fotos, Logos, Metadaten ---------- */
+  /* ---------- Datenpunkte: mit Adresse/Flughafen/Guide ---------- */
   const points = [
     {
-      id: "milan2023",
-      city: "Milano", country: "Italy", lat: 45.4668, lng: 9.1905,
-      title: "Milano Moda", date: "06.2023",
-      photos: [ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
-      description: "Trend scouting zu Funktionsgeweben, veredelten Oberflächen und nachhaltigen Garnen. Fokus: langlebige Qualität, Haptik, Performance.",
-      logos: [ /* Beispiel: "photos/logo_a.png","photos/logo_b.png" */ ]
+      id:"pitti100",
+      city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      title:"PITTI UOMO 100", date:"07.2021",
+      address:"Fortezza da Basso, Viale Filippo Strozzi, 1, 50129 Firenze FI, Italy",
+      airport:"FLR — Florence Airport (Peretola), 6 km",
+      photos:[ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
+      description:"Pitti Uomo ist eine der prägendsten Menswear-Messen Europas. Kuratierte Marken zeigen Tailoring, Heritage und progressive Materialkultur in einer kompakten, stark kuratierten Ausstellungsarchitektur. Der historische Standort Fortezza da Basso verleiht der Messe ein ikonisches Ambiente im Herzen von Florenz.",
+      logos:[],
+      guide:{
+        food:[ {name:"Trattoria Mario", note:"Florentinische Küche; Mittags heiß begehrt.", link:"https://goo.gl/maps/..." } ],
+        hotels:[ {name:"Hotel Glance", note:"Nahe Fortezza, modernes Design.", link:"https://goo.gl/maps/..." } ],
+        spots:[ {name:"Piazza del Duomo", note:"Abendstimmung & Architektur.", link:"https://goo.gl/maps/..." } ]
+      }
     },
     {
-      id: "paris_pv_2022",
-      city: "Paris", country: "France", lat: 48.8566, lng: 2.3522,
-      title: "Première Vision", date: "02.2022",
-      photos: [ safe("photos/paris1.jpg") ],
-      description: "Sourcing & Materialforschung: Fasern, Web- & Strickwaren, Finishes, Farbkarten. Austausch mit Lieferanten über Zertifizierungen.",
-      logos: []
+      id:"paris_pv_2022",
+      city:"Paris", country:"France", lat:48.8566, lng:2.3522,
+      title:"Première Vision", date:"02.2022",
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
+      airport:"CDG — Charles de Gaulle, 8 km",
+      photos:[ safe("photos/paris1.jpg") ],
+      description:"Première Vision vereint Hersteller, Weber, Färbereien und Accessory-Spezialisten aus aller Welt. Der Fokus liegt auf Materialinnovationen, Farbwelten und Veredelungen, die die kommende Saison definieren. Die Messe findet im Parc des Expositions Paris Nord Villepinte statt — optimal erreichbar über CDG.",
+      logos:[],
+      guide:{ food:[], hotels:[], spots:[] }
     },
     {
-      id: "mfs_2024",
-      city: "München", country: "Germany", lat: 48.1351, lng: 11.5820,
-      title: "Munich Fabric Start", date: "09.2024",
-      photos: [ safe("photos/munich1.jpg"), safe("photos/munich2.jpg") ],
-      description: "Functional Outerwear: Laminierungen, Beschichtungen, Abrieb- & Hydrostatik-Performance für langlebige Anwendungen.",
-      logos: []
-    },
-    { id:"riva_2023",  city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
-      title:"Expo Riva Shoe", date:"06.2023",
-      photos:[], description:"Internationale Schuhmesse: Komponenten, Oberleder, nachhaltige Alternativen, Lieferantengespräche.", logos:[] },
-    { id:"pitti_2023", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
-      title:"Pitti Uomo", date:"06.2023",
-      photos:[], description:"Menswear-Kollektionen, Tailoring, Accessoires. Benchmarking von Qualität, Verarbeitung, Branding.", logos:[] },
-    { id:"cosmoprof_2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
-      title:"COSMOPROF", date:"04.2022",
-      photos:[], description:"Beauty & Packaging Innovations, Duft- und Texturwelten für Material-Inspirationen.", logos:[] },
-    { id:"cosmopack_2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
-      title:"COSMOPACK", date:"04.2022",
-      photos:[], description:"Verpackung, Produktionsprozesse, Materialkreisläufe. Fokus: Recycling & Premium-Finish.", logos:[] },
-    { id:"maisonobjet_paris", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
-      title:"Maison&Objet", date:"03.2022",
-      photos:[], description:"Interieur, Lifestyle, Material-Moods. Farb- und Oberflächentrends.", logos:[] },
-    { id:"micam_milan", city:"Milano", country:"Italy", lat:45.4668, lng:9.1905,
-      title:"MICAM", date:"09.2021",
-      photos:[], description:"Internationale Schuhmesse: Komponenten, Obermaterialien, Brand-Showcases.", logos:[] },
-    { id:"pitti_100_2021", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
-      title:"Pitti Uomo 100", date:"07.2021",
-      photos:[], description:"Jubiläumsausgabe. Fokus auf Heritage, Schnitttechnik, Stoffqualität.", logos:[] },
-    { id:"nordstil_hh", city:"Hamburg", country:"Germany", lat:53.5511, lng:9.9937,
-      title:"NORDSTIL", date:"07.2021",
-      photos:[], description:"Lifestyle- & Retail-Konzepte, Deko & Gifting. Impulse für POS & VM.", logos:[] },
-    { id:"ciff_cph", city:"Kopenhagen", country:"Denmark", lat:55.6761, lng:12.5683,
-      title:"CIFF", date:"02.2020",
-      photos:[], description:"Copenhagen Int. Fashion Fair – Marken, nachhaltige Initiativen, skandinavische Materialästhetik.", logos:[] },
-    { id:"supreme_dus", city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
-      title:"Supreme Women&Men", date:"07.2020",
-      photos:[], description:"Women & Men Showrooms; Order-Termine, Qualitäten, Preislisten.", logos:[] },
-    { id:"tranoi_paris_2020", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
-      title:"TRANOÏ", date:"01.2020",
-      photos:[], description:"Kuratiertes Designer-Line-up, Material- & Branding-Inspiration.", logos:[] },
-    { id:"topdrawer_ldn", city:"London", country:"United Kingdom", lat:51.5072, lng:-0.1276,
-      title:"Top Drawer", date:"09.2019",
-      photos:[], description:"Design-led Retail; VM-Konzepte, Packaging, neue Nischenlabels.", logos:[] },
-    { id:"whosnext_paris", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
-      title:"Who's Next", date:"09.2019",
-      photos:[], description:"Fashion & Accessories; Marktüberblick, Brand-Mix, Preispunkte.", logos:[] },
-    { id:"tranoi_paris_2019", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
-      title:"TRANOÏ", date:"09.2019",
-      photos:[], description:"Designer-Präsentationen; Materialinnovationen & kreative Prozesse.", logos:[] },
-    { id:"maisonobjet_paris_2019", city:"Paris", country:"France", lat:48.8566, lng:2.3522,
-      title:"Maison&Objet", date:"01.2019",
-      photos:[], description:"Home & Object; Oberflächen, Handwerk, Farbklimata.", logos:[] },
-    { id:"micam_milan_2018", city:"Milano", country:"Italy", lat:45.4668, lng:9.1905,
-      title:"MICAM", date:"09.2018",
-      photos:[], description:"Footwear; Komponenten, Sohlen, Oberleder.", logos:[] },
-    { id:"fashiontech_berlin", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
-      title:"FASHIONTECH", date:"07.2018",
-      photos:[], description:"Tech x Fashion; Digitalisierung, Materialien, Prozesse.", logos:[] },
-    { id:"seek_berlin", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
-      title:"SEEK", date:"01.2018",
-      photos:[], description:"Contemporary Market; Marken, Qualität, Order.", logos:[] },
-    { id:"panorama_berlin_2017", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
-      title:"Panorama Berlin", date:"01.2017",
-      photos:[], description:"Fashion Trade Show; Segmentierung, Preisgefüge, Kontakte.", logos:[] }
+      id:"mfs_2024",
+      city:"München", country:"Germany", lat:48.1351, lng:11.5820,
+      title:"Munich Fabric Start", date:"09.2024",
+      address:"MOC Veranstaltungscenter, Lilienthalallee 40, 80939 München, Germany",
+      airport:"MUC — Munich Airport, 28 km",
+      photos:[ safe("photos/munich1.jpg"), safe("photos/munich2.jpg") ],
+      description:"Munich Fabric Start präsentiert Stoffe, Zutaten und Technologien mit starker Ausrichtung auf Performance und Langlebigkeit. Neben klassischen Geweben stehen Functional Outerwear, Laminierungen und nachhaltige Finishes im Fokus. Der Messeort MOC liegt verkehrsgünstig im Norden Münchens.",
+      logos:[],
+      guide:{ food:[], hotels:[], spots:[] }
+    }
+    // ...weitere Punkte analog ergänzen
   ];
 
-  /* ---------- Popup mit Galerie, Metadaten & Logos ---------- */
+  /* ---------- Popup-HTML ---------- */
   function popupHTML(pt){
-    const title = `${pt.title || pt.city}`;
-    const meta = `<div class="meta"><span>${pt.city}, ${pt.country}</span><span>${pt.date || ''}</span></div>`;
-    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : 'https://picsum.photos/1200/800?grayscale';
+    const title = `<div class="title-line"><h3 class="city-label">${pt.title}</h3></div>`;
+    const meta = `
+      <div class="meta-line">
+        <span>${pt.city}, ${pt.country}</span>
+        <span>${pt.date || ''}</span>
+      </div>`;
+    const addr = pt.address ? `<div class="meta-line"><span>${pt.address}</span></div>` : '';
+    const airp = pt.airport ? `<div class="meta-line"><span>Nearest Airport: ${pt.airport}</span></div>` : '';
+    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : 'https://picsum.photos/1400/900?grayscale';
+
     const logos = (pt.logos && pt.logos.length)
       ? pt.logos.map(l => `<img src="${safe(l)}" alt="logo" />`).join('')
       : `<div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div>`;
+
     return `
-      <div>
-        <div class="city-label">${title}</div>
-        ${meta}
-        <div class="gallery" data-id="${pt.id}">
-          <img src="${first}" alt="${pt.city}" />
-          <button class="nav-btn nav-prev" aria-label="Previous">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-          </button>
-          <button class="nav-btn nav-next" aria-label="Next">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="m8.59 16.59 1.41 1.41L16 12l-5.99-6-1.42 1.41L13.17 12z"/></svg>
-          </button>
-        </div>
-        <div class="desc">${pt.description || ''}</div>
-        <div class="logo-row">${logos}</div>
-        <a class="more-link" href="/work/buying-and-fairs/${pt.id}">Mehr zum Besuch</a>
+      ${title}
+      ${meta}
+      <div class="gallery" data-id="${pt.id}">
+        <img src="${first}" alt="${pt.city}" />
+        <button class="nav-btn nav-prev" aria-label="Previous">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button class="nav-btn nav-next" aria-label="Next">
+          <svg viewBox="0 0 24 24"><path fill="currentColor" d="m8.59 16.59 1.41 1.41L16 12l-5.99-6-1.42 1.41L13.17 12z"/></svg>
+        </button>
       </div>
+      <div class="desc">${pt.description || ''}</div>
+      ${addr}
+      ${airp}
+      <div class="collab-head">Collaborations / Buying Companies</div>
+      <div class="logo-row">${logos}</div>
+      <a class="more-link" href="/work/buying-and-fairs/${pt.id}">Mehr zum Besuch</a>
     `;
   }
 
-  const galleryIndex = new Map(); // id -> aktueller Bildindex
-
+  /* ---------- Galerie-Logic ---------- */
+  const galleryIndex = new Map(); // id -> index
   function bindGalleryHandlers(container, photos, id){
     const img = container.querySelector('.gallery img');
     const prev = container.querySelector('.nav-prev');
@@ -324,11 +322,53 @@
     render();
   }
 
+  /* ---------- Legend updaten ---------- */
+  function updateLegend(pt){
+    const meta = document.getElementById('legend-meta');
+    const food = document.getElementById('legend-food');
+    const hotels = document.getElementById('legend-hotels');
+    const spots = document.getElementById('legend-spots');
+
+    meta.textContent = `${pt.city}, ${pt.country} — ${pt.title} (${pt.date || ''})`;
+
+    function fill(listEl, arr){
+      listEl.innerHTML = '';
+      if(!arr || !arr.length){ listEl.innerHTML = '<li class="empty">Noch keine Einträge</li>'; return; }
+      arr.forEach(x => {
+        const li = document.createElement('li');
+        li.innerHTML = x.link ? `<a href="${x.link}" target="_blank" rel="noopener">${x.name}</a> — ${x.note||''}` : `<strong>${x.name}</strong> — ${x.note||''}`;
+        listEl.appendChild(li);
+      });
+    }
+
+    fill(food, pt.guide?.food);
+    fill(hotels, pt.guide?.hotels);
+    fill(spots, pt.guide?.spots);
+  }
+
+  /* ---------- Flugrouten (Hamburg -> Ziel) ---------- */
+  const HAMBURG = [53.5511, 9.9937];
+  const planeIcon = L.divIcon({
+    className:'plane',
+    html:`<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
+    iconSize:[16,16], iconAnchor:[8,8]
+  });
+
+  function drawRoute(toLatLng){
+    const line = L.polyline([HAMBURG, toLatLng], { className:'route' }).addTo(map);
+    // Kleines Flugzeug-Icon etwa bei 1/3 der Strecke
+    const lat = HAMBURG[0] + (toLatLng[0]-HAMBURG[0]) * 0.33;
+    const lng = HAMBURG[1] + (toLatLng[1]-HAMBURG[1]) * 0.33;
+    L.marker([lat, lng], { icon: planeIcon, interactive:false }).addTo(map);
+  }
+
   /* ---------- Marker & Popups ---------- */
+  const markers = [];
   points.forEach(pt => {
-    const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon(), custom: { pt } }).addTo(map);
+    const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon(), custom:{pt} }).addTo(map);
+    markers.push(marker);
     marker.bindTooltip(`${pt.city}`, {permanent:false, direction:'top', offset:[0,-12], opacity:0.95});
-    marker.bindPopup(popupHTML(pt), { maxWidth: 640, closeOnClick: true, autoClose: true });
+    marker.bindPopup(popupHTML(pt), { maxWidth: 720, closeOnClick: true, autoClose: true });
 
     marker.on('popupopen', (e) => {
       const el = e.popup.getElement();
@@ -336,8 +376,12 @@
         const wrap = el.querySelector('.leaflet-popup-content');
         if (wrap) bindGalleryHandlers(wrap, pt.photos, pt.id);
       });
+      updateLegend(pt);
+      // route neu zeichnen (vorherige entfernen?—für Einfachheit mehrere zulassen)
+      drawRoute([pt.lat, pt.lng]);
     });
-    marker.on('click', () => marker.openPopup()); // mehrfach klickbar
+
+    marker.on('click', () => marker.openPopup());
   });
 
   // Bestmöglicher Ausschnitt
