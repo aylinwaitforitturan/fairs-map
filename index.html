@@ -17,6 +17,7 @@
       --hover:#E7E1D6;       /* Hover-Füllung */
       --panel:#FFFFFF;       /* Panels */
       --shadow:0 14px 36px rgba(0,0,0,0.14);
+      --star:#111;           /* Sterne (schwarz) */
     }
     *{ box-sizing:border-box; }
     html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
@@ -26,7 +27,7 @@
 
     /* Header */
     .map-header {
-      position:absolute; top:18px; left:18px; z-index:800;
+      position:absolute; top:18px; right:18px; z-index:800;
       background:rgba(255,255,255,0.92); color:var(--ink);
       padding:12px 16px; border-radius:12px; border:1px solid rgba(0,0,0,0.06);
       box-shadow:0 10px 24px rgba(14,59,46,0.08); backdrop-filter: blur(2px);
@@ -36,9 +37,10 @@
     }
     .map-header p { margin:6px 0 0; font-size:13px; color:var(--muted); letter-spacing:0.04em; }
 
-    /* Sidebar / Legende rechts */
+    /* Sidebar / Legende LINKS, mittig (unter +/–) */
     .legend {
-      position:absolute; top:18px; right:18px; width:310px; max-width:35vw; z-index:850;
+      position:absolute; left:18px; top:50%; transform:translateY(-50%);
+      width:310px; max-width:35vw; z-index:850;
       background:var(--panel); border:1px solid rgba(0,0,0,0.06); border-radius:14px;
       box-shadow:var(--shadow); padding:14px 16px;
     }
@@ -52,20 +54,33 @@
     .legend li{ font-size:13px; line-height:1.35; }
     .legend a{ color:var(--pin); text-decoration:none; }
     .legend .empty{ color:#b1aba0; font-size:12px; }
+    .stars { display:inline-flex; gap:2px; vertical-align:middle; margin-left:6px; }
+    .stars svg{ width:12px; height:12px; }
 
     /* Tiles minimal (Labels kommen separat) */
     .leaflet-tile { filter: grayscale(100%) contrast(1.04) brightness(1.06) sepia(0.08); }
 
     /* Popup */
-    .leaflet-popup-content { max-width: 680px; color:var(--ink); margin: 8px 12px; }
-    .title-line { display:flex; align-items:center; gap:10px; }
+    .leaflet-popup-content { max-width: 720px; color:var(--ink); margin: 8px 12px; }
     .title-line .city-label { font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin:0; font-size:15px; }
     .meta-line { display:flex; gap:14px; font-size:12.5px; color:var(--muted); margin:6px 0 10px; flex-wrap:wrap; }
     .meta-line span { white-space:nowrap; }
 
+    /* Info-Icons-Reihe (tabellenartig, ohne Linien) */
+    .info-row{
+      display:flex; gap:22px; margin:10px 0 14px; flex-wrap:wrap;
+    }
+    .info-item{
+      display:flex; flex-direction:column; align-items:flex-start; min-width:180px;
+    }
+    .info-item .icons{ display:flex; gap:6px; align-items:center; }
+    .info-item .icons svg{ width:16px; height:16px; color:#111; }
+    .info-item .label{ font-weight:800; letter-spacing:0.06em; margin-top:4px; }
+    .info-item .sub{ color:var(--muted); font-size:12.5px; margin-top:2px; }
+
     /* Galerie groß & swipebar */
     .gallery {
-      position: relative; width: 100%; max-width: 640px; height: 380px;
+      position: relative; width: 100%; max-width: 680px; height: 400px;
       border-radius: 14px; overflow: hidden; background: #000;
       box-shadow: var(--shadow);
       touch-action: pan-y;
@@ -104,9 +119,8 @@
     /* Flugroute */
     .route { stroke:#111; stroke-opacity:0.4; stroke-width:2; stroke-dasharray:6 6; }
     .plane { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
-    @media (max-width:900px){
-      .legend{ display:none; }
-      .map-header{ left:12px; right:12px; }
+    @media (max-width:1100px){
+      .legend{ display:none; } /* Mobile: Legende ausblenden */
     }
   </style>
 </head>
@@ -119,7 +133,7 @@
   <p>Drag to move. Scroll to zoom. Click pins to view the gallery.</p>
 </div>
 
-<!-- Seiten-Legende (TripAdvisor-Stil) -->
+<!-- Seiten-Legende links, mittig -->
 <aside class="legend" id="legend">
   <h4>City Guide</h4>
   <div class="meta" id="legend-meta">Wähle einen Messestandort.</div>
@@ -143,6 +157,7 @@
 
 <script>
   const safe = (u) => encodeURI(u);
+  const css = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
   /* ---------- Karte ---------- */
   const map = L.map('map', {
@@ -175,8 +190,8 @@
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
     .then(r => r.json())
     .then(geo => {
-      const style = { color:getCss('--border'), weight:0.9, opacity:0.9, fillColor:'#000', fillOpacity:0.02 };
-      const hover = { weight:1.5, fillOpacity:0.10, fillColor:getCss('--hover') };
+      const style = { color:css('--border'), weight:0.9, opacity:0.9, fillColor:'#000', fillOpacity:0.02 };
+      const hover = { weight:1.5, fillOpacity:0.10, fillColor:css('--hover') };
       L.geoJSON(geo, {
         pane:'country-borders',
         style: () => style,
@@ -190,10 +205,8 @@
       }).addTo(map);
     });
 
-  function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-
-  /* ---------- Pins ---------- */
-  function pinSVG(size=22, color=getCss('--pin')){
+  /* ---------- Icons ---------- */
+  function pinSVG(size=22, color=css('--pin')){
     const s = size;
     return `
       <svg width="${s}" height="${s*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -205,60 +218,154 @@
   function createPinIcon(){
     return L.divIcon({ className:'pin', html: pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] });
   }
+  const planeIcon = L.divIcon({
+    className:'plane',
+    html:`<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
+    iconSize:[16,16], iconAnchor:[8,8]
+  });
 
-  /* ---------- Datenpunkte: mit Adresse/Flughafen/Guide ---------- */
+  function iconLocation(){ return `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg>`; }
+  function iconAirport(){ return `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`; }
+  function stars(n=4.5){
+    const full = Math.floor(n), half = (n-full)>=0.5 ? 1 : 0, empty = 5-full-half;
+    const s = (filled)=>`<svg viewBox="0 0 24 24"><path fill="${filled?'#111':'#c9c4ba'}" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    const h = half?`<svg viewBox="0 0 24 24"><defs><linearGradient id="half"><stop offset="50%" stop-color="#111"/><stop offset="50%" stop-color="#c9c4ba"/></linearGradient></defs><path fill="url(#half)" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`:'';
+    return `<span class="stars">${Array(full).fill(0).map(s).join('')}${h}${Array(empty).fill(0).map(()=>s(false)).join('')}</span>`;
+  }
+
+  /* ---------- Datenpunkte: ALLE Standorte aus deiner Liste ---------- */
+  // Hinweis: Ergänze/prüfe photos/logos/guide/ratings nach Bedarf.
   const points = [
-    {
-      id:"pitti100",
-      city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
-      title:"PITTI UOMO 100", date:"07.2021",
-      address:"Fortezza da Basso, Viale Filippo Strozzi, 1, 50129 Firenze FI, Italy",
-      airport:"FLR — Florence Airport (Peretola), 6 km",
-      photos:[ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
-      description:"Pitti Uomo ist eine der prägendsten Menswear-Messen Europas. Kuratierte Marken zeigen Tailoring, Heritage und progressive Materialkultur in einer kompakten, stark kuratierten Ausstellungsarchitektur. Der historische Standort Fortezza da Basso verleiht der Messe ein ikonisches Ambiente im Herzen von Florenz.",
-      logos:[],
-      guide:{
-        food:[ {name:"Trattoria Mario", note:"Florentinische Küche; Mittags heiß begehrt.", link:"https://goo.gl/maps/..." } ],
-        hotels:[ {name:"Hotel Glance", note:"Nahe Fortezza, modernes Design.", link:"https://goo.gl/maps/..." } ],
-        spots:[ {name:"Piazza del Duomo", note:"Abendstimmung & Architektur.", link:"https://goo.gl/maps/..." } ]
-      }
-    },
-    {
-      id:"paris_pv_2022",
-      city:"Paris", country:"France", lat:48.8566, lng:2.3522,
-      title:"Première Vision", date:"02.2022",
-      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
-      airport:"CDG — Charles de Gaulle, 8 km",
-      photos:[ safe("photos/paris1.jpg") ],
-      description:"Première Vision vereint Hersteller, Weber, Färbereien und Accessory-Spezialisten aus aller Welt. Der Fokus liegt auf Materialinnovationen, Farbwelten und Veredelungen, die die kommende Saison definieren. Die Messe findet im Parc des Expositions Paris Nord Villepinte statt — optimal erreichbar über CDG.",
-      logos:[],
-      guide:{ food:[], hotels:[], spots:[] }
-    },
-    {
-      id:"mfs_2024",
-      city:"München", country:"Germany", lat:48.1351, lng:11.5820,
-      title:"Munich Fabric Start", date:"09.2024",
-      address:"MOC Veranstaltungscenter, Lilienthalallee 40, 80939 München, Germany",
-      airport:"MUC — Munich Airport, 28 km",
+    // 2024
+    { id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", city:"München", country:"Germany", lat:48.1351, lng:11.5820,
+      address:"MOC, Lilienthalallee 40, 80939 München, Germany", airport:"MUC — Munich Airport, 28 km",
       photos:[ safe("photos/munich1.jpg"), safe("photos/munich2.jpg") ],
-      description:"Munich Fabric Start präsentiert Stoffe, Zutaten und Technologien mit starker Ausrichtung auf Performance und Langlebigkeit. Neben klassischen Geweben stehen Functional Outerwear, Laminierungen und nachhaltige Finishes im Fokus. Der Messeort MOC liegt verkehrsgünstig im Norden Münchens.",
-      logos:[],
-      guide:{ food:[], hotels:[], spots:[] }
-    }
-    // ...weitere Punkte analog ergänzen
+      description:"Munich Fabric Start zeigt Textilien, Zutaten und Technologien mit klarer Fokussierung auf Performance, Qualität und Langlebigkeit. Functional Outerwear, Laminierungen und nachhaltige Finishes prägen das Materialbild. Das MOC liegt verkehrsgünstig im Norden Münchens.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{}
+    },
+
+    // 2023
+    { id:"riva_2023", title:"Expo Riva Shoe", date:"06.2023", city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
+      address:"Quartiere Fieristico, Via Baltera 20, 38066 Riva del Garda TN, Italy", airport:"VRN — Verona Airport, 85 km",
+      photos:[], description:"Internationale Schuhmesse mit Fokus auf Materialien, Komponenten und Sourcing. Starke Orientierung auf Qualität und Preis-Leistung, mit Einblicken in nachhaltige Alternativen und Lieferketten.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"pitti_2023", title:"Pitti Uomo", date:"06.2023", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy", airport:"FLR — Florence Airport, 6 km",
+      photos:[ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
+      description:"Pitti Uomo prägt die europäische Menswear-Kultur: von Tailoring bis Contemporary Brands. Der historische Veranstaltungsort Fortezza da Basso schafft eine ikonische Bühne im Herzen der Stadt. Materialqualität, Verarbeitung und Ästhetik stehen im Fokus.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+
+    // 2022
+    { id:"cosmoprof_2022", title:"COSMOPROF", date:"04.2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy", airport:"BLQ — Bologna Airport, 8 km",
+      photos:[], description:"COSMOPROF vereint internationale Aussteller rund um Beauty, Duft und Texturwelten. Für Material- und Packaging-Inspirationen bietet die Messe eine breite Bühne – von neuen Finishes bis sensorischer Qualität.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"cosmopack_2022", title:"COSMOPACK", date:"04.2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy", airport:"BLQ — Bologna Airport, 8 km",
+      photos:[], description:"COSMOPACK fokussiert Verpackung, Prozesse und Kreislaufstrategien. Von Primärverpackung bis High-End-Finishes werden industrielle Lösungen und nachhaltige Materialpfade sichtbar.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"maisonobjet_paris", title:"Maison&Objet", date:"03.2022", city:"Paris", country:"France", lat:48.972, lng:2.519, /* Villepinte */
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France", airport:"CDG — Charles de Gaulle, 8 km",
+      photos:[], description:"Maison&Objet kuratiert Interieur, Lifestyle und Objekt-Design mit starkem Fokus auf Materialästhetik, Haptik und Farbe. Der Standort Villepinte ist hervorragend angebunden.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"paris_pv_2022", title:"Première Vision", date:"02.2022", city:"Paris", country:"France", lat:48.972, lng:2.519,
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France", airport:"CDG — Charles de Gaulle, 8 km",
+      photos:[ safe("photos/paris1.jpg") ],
+      description:"Première Vision bringt Weber, Färbereien und Accessory-Spezialisten zusammen. Materialinnovationen, Farbklimata und Veredelungen prägen die Saisonimpulse – eine Schlüsselplattform für Qualitäts- und Nachhaltigkeitsstandards.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+
+    // 2021
+    { id:"micam_milan_2021", title:"MICAM", date:"09.2021", city:"Milano", country:"Italy", lat:45.518, lng:9.103, /* Fiera Milano Rho */
+      address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy", airport:"MXP — Milano Malpensa, 45 km",
+      photos:[], description:"MICAM ist eine Leitmesse der internationalen Schuhindustrie. Von Oberleder bis Sohlenkomponenten werden Qualität, Verarbeitung und Markeninszenierungen sichtbar.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"pitti100", title:"PITTI UOMO 100", date:"07.2021", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy", airport:"FLR — Florence Airport, 6 km",
+      photos:[ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
+      description:"Jubiläumsausgabe der renommierten Menswear-Messe. Heritage trifft auf progressive Schnitttechnik und Stoffqualität – in einer prägnanten, historischen Kulisse.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"nordstil_hh", title:"NORDSTIL", date:"07.2021", city:"Hamburg", country:"Germany", lat:53.5586, lng:9.9836, /* Messe Hamburg */
+      address:"Hamburg Messe, Messeplatz 1, 20357 Hamburg, Germany", airport:"HAM — Hamburg Airport, 9 km",
+      photos:[], description:"Nordstil präsentiert Lifestyle-, Deko- und Gifting-Sortimente. Relevante Impulse für POS-Konzepte und Markeninszenierung, mit regionaler und internationaler Ausstellerstruktur.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"frankfurt_2021", title:"Industry Fair Frankfurt", date:"08.2021", city:"Frankfurt", country:"Germany", lat:50.1109, lng:8.6821,
+      address:"Messe Frankfurt, Ludwig-Erhard-Anlage 1, 60327 Frankfurt am Main, Germany", airport:"FRA — Frankfurt Airport, 12 km",
+      photos:[], description:"Branchenübergreifende Order- und Technologiethemen. Austausch mit Produzenten, Zertifizierern und Logistikpartnern.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+
+    // 2020
+    { id:"ciff_cph", title:"CIFF", date:"02.2020", city:"Kopenhagen", country:"Denmark", lat:55.6761, lng:12.5683,
+      address:"Bella Center, Center Blvd. 5, 2300 København, Denmark", airport:"CPH — Kastrup, 6 km",
+      photos:[], description:"Die Copenhagen Int. Fashion Fair bündelt skandinavische Marken und Nachhaltigkeitsinitiativen. Klarheit, Funktion und Materialqualität prägen das Bild.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"supreme_dus", title:"Supreme Women&Men", date:"07.2020", city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
+      address:"B1 Fashion, Bennigsen-Platz 1, 40474 Düsseldorf, Germany", airport:"DUS — Düsseldorf Airport, 6 km",
+      photos:[], description:"Women & Men Showrooms: Kollektionen, Qualitäten und Preispunkte im direkten Order-Gespräch.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020", city:"Paris", country:"France", lat:48.864, lng:2.332, /* Carrousel du Louvre area */
+      address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France", airport:"CDG — Charles de Gaulle, 27 km",
+      photos:[], description:"Kuratiertes Designer-Line-up zwischen Kunst und Mode. Fokus auf Materialinnovationen, Verarbeitung und Markenidentität.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+
+    // 2019
+    { id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019", city:"London", country:"United Kingdom", lat:51.5072, lng:-0.1276,
+      address:"Olympia London, Hammersmith Rd, London W14 8UX, UK", airport:"LHR — Heathrow, 20 km",
+      photos:[], description:"Design-led Retail mit Fokus auf Interior, Gifting und Marken-Storytelling. Gute Quelle für Packaging- und VM-Inspiration.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"whosnext_ldn", title:"Who’s Next?", date:"09.2019", city:"London", country:"United Kingdom", lat:51.5072, lng:-0.1276,
+      address:"ExCeL London, Royal Victoria Dock, 1 Western Gateway, London E16 1XL, UK", airport:"LCY — London City, 4 km",
+      photos:[], description:"Zeitgenössische Mode- & Accessoires-Schau mit Fokus auf Retail-Relevanz und Brand-Mix. (London-Edition)",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"tranoi_paris_2019", title:"TRANOÏ", date:"09.2019", city:"Paris", country:"France", lat:48.864, lng:2.332,
+      address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France", airport:"CDG — Charles de Gaulle, 27 km",
+      photos:[], description:"Designer-Präsentationen mit präziser Material- und Prozesssprache. Schnittstelle zwischen Atelier, Industrie und Retail.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"maisonobjet_paris_2019", title:"Maison&Objet", date:"01.2019", city:"Paris", country:"France", lat:48.972, lng:2.519,
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France", airport:"CDG — Charles de Gaulle, 8 km",
+      photos:[], description:"Home & Object mit starkem Fokus auf Oberflächen, Handwerk und Farbklimata. Ideal für Mood- und Materialrecherchen.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+
+    // 2018
+    { id:"micam_milan_2018", title:"MICAM", date:"09.2018", city:"Milano", country:"Italy", lat:45.518, lng:9.103,
+      address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy", airport:"MXP — Milano Malpensa, 45 km",
+      photos:[], description:"Leitmesse der Schuhindustrie. Komponenten, Obermaterialien und internationale Marken setzen Maßstäbe.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      address:"STATION Berlin, Luckenwalder Str. 4-6, 10963 Berlin, Germany", airport:"BER — Berlin Brandenburg, 20 km",
+      photos:[], description:"Schnittstelle von Technologie und Mode: Digitalisierung, Automatisierung, neue Materialien und Prozesse.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+    { id:"seek_berlin", title:"SEEK", date:"01.2018", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      address:"Arena Berlin, Eichenstr. 4, 12435 Berlin, Germany", airport:"BER — Berlin Brandenburg, 18 km",
+      photos:[], description:"Zeitgenössische Fashion-Plattform mit Markenmix, Materialqualität und Order-Relevanz.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+
+    // 2017
+    { id:"panorama_berlin_2017", title:"Panorama Berlin", date:"01.2017", city:"Berlin", country:"Germany", lat:52.51, lng:13.375,
+      address:"Messe Berlin, Messedamm 22, 14055 Berlin, Germany", airport:"BER — Berlin Brandenburg, 28 km",
+      photos:[], description:"Fashion-Tradeshow mit breiter Segmentierung und guter Marktorientierung – nützlich für Preispunkte und Sortiment.",
+      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
   ];
 
-  /* ---------- Popup-HTML ---------- */
+  /* ---------- Popup-HTML (mit Icon-Infozeile) ---------- */
   function popupHTML(pt){
     const title = `<div class="title-line"><h3 class="city-label">${pt.title}</h3></div>`;
-    const meta = `
-      <div class="meta-line">
-        <span>${pt.city}, ${pt.country}</span>
-        <span>${pt.date || ''}</span>
-      </div>`;
-    const addr = pt.address ? `<div class="meta-line"><span>${pt.address}</span></div>` : '';
-    const airp = pt.airport ? `<div class="meta-line"><span>Nearest Airport: ${pt.airport}</span></div>` : '';
+    const meta = `<div class="meta-line"><span>${pt.city}, ${pt.country}</span><span>${pt.date || ''}</span></div>`;
     const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : 'https://picsum.photos/1400/900?grayscale';
+
+    const infoRow = `
+      <div class="info-row">
+        <div class="info-item">
+          <div class="icons">${iconLocation()}</div>
+          <div class="label">Location</div>
+          <div class="sub">${pt.address || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="icons">${iconAirport()}</div>
+          <div class="label">Nearest Airport</div>
+          <div class="sub">${pt.airport || '—'}</div>
+        </div>
+      </div>
+    `;
 
     const logos = (pt.logos && pt.logos.length)
       ? pt.logos.map(l => `<img src="${safe(l)}" alt="logo" />`).join('')
@@ -277,8 +384,7 @@
         </button>
       </div>
       <div class="desc">${pt.description || ''}</div>
-      ${addr}
-      ${airp}
+      ${infoRow}
       <div class="collab-head">Collaborations / Buying Companies</div>
       <div class="logo-row">${logos}</div>
       <a class="more-link" href="/work/buying-and-fairs/${pt.id}">Mehr zum Besuch</a>
@@ -322,7 +428,7 @@
     render();
   }
 
-  /* ---------- Legend updaten ---------- */
+  /* ---------- Legend mit Ratings ---------- */
   function updateLegend(pt){
     const meta = document.getElementById('legend-meta');
     const food = document.getElementById('legend-food');
@@ -336,7 +442,10 @@
       if(!arr || !arr.length){ listEl.innerHTML = '<li class="empty">Noch keine Einträge</li>'; return; }
       arr.forEach(x => {
         const li = document.createElement('li');
-        li.innerHTML = x.link ? `<a href="${x.link}" target="_blank" rel="noopener">${x.name}</a> — ${x.note||''}` : `<strong>${x.name}</strong> — ${x.note||''}`;
+        const rating = x.rating ? stars(x.rating) : '';
+        li.innerHTML = x.link
+          ? `<a href="${x.link}" target="_blank" rel="noopener">${x.name}</a> — ${x.note||''} ${rating}`
+          : `<strong>${x.name}</strong> — ${x.note||''} ${rating}`;
         listEl.appendChild(li);
       });
     }
@@ -346,29 +455,23 @@
     fill(spots, pt.guide?.spots);
   }
 
-  /* ---------- Flugrouten (Hamburg -> Ziel) ---------- */
+  /* ---------- Flugrouten: chronologisch nach Klicks ---------- */
   const HAMBURG = [53.5511, 9.9937];
-  const planeIcon = L.divIcon({
-    className:'plane',
-    html:`<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
-    iconSize:[16,16], iconAnchor:[8,8]
-  });
+  let lastPoint = null; // erster Klick startet von Hamburg
+  const routeLayer = L.layerGroup().addTo(map);
 
-  function drawRoute(toLatLng){
-    const line = L.polyline([HAMBURG, toLatLng], { className:'route' }).addTo(map);
-    // Kleines Flugzeug-Icon etwa bei 1/3 der Strecke
-    const lat = HAMBURG[0] + (toLatLng[0]-HAMBURG[0]) * 0.33;
-    const lng = HAMBURG[1] + (toLatLng[1]-HAMBURG[1]) * 0.33;
-    L.marker([lat, lng], { icon: planeIcon, interactive:false }).addTo(map);
+  function drawSegment(fromLatLng, toLatLng){
+    L.polyline([fromLatLng, toLatLng], { className:'route' }).addTo(routeLayer);
+    const lat = fromLatLng[0] + (toLatLng[0]-fromLatLng[0]) * 0.5;
+    const lng = fromLatLng[1] + (toLatLng[1]-fromLatLng[1]) * 0.5;
+    L.marker([lat, lng], { icon: planeIcon, interactive:false }).addTo(routeLayer);
   }
 
   /* ---------- Marker & Popups ---------- */
-  const markers = [];
   points.forEach(pt => {
     const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon(), custom:{pt} }).addTo(map);
-    markers.push(marker);
     marker.bindTooltip(`${pt.city}`, {permanent:false, direction:'top', offset:[0,-12], opacity:0.95});
-    marker.bindPopup(popupHTML(pt), { maxWidth: 720, closeOnClick: true, autoClose: true });
+    marker.bindPopup(popupHTML(pt), { maxWidth: 760, closeOnClick: true, autoClose: true });
 
     marker.on('popupopen', (e) => {
       const el = e.popup.getElement();
@@ -377,8 +480,11 @@
         if (wrap) bindGalleryHandlers(wrap, pt.photos, pt.id);
       });
       updateLegend(pt);
-      // route neu zeichnen (vorherige entfernen?—für Einfachheit mehrere zulassen)
-      drawRoute([pt.lat, pt.lng]);
+
+      // Route: erster Klick von Hamburg, danach vom letzten Ziel
+      const from = lastPoint ? lastPoint : HAMBURG;
+      drawSegment(from, [pt.lat, pt.lng]);
+      lastPoint = [pt.lat, pt.lng];
     });
 
     marker.on('click', () => marker.openPopup());
