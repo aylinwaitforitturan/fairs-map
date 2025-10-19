@@ -16,13 +16,14 @@
       --hover:#D8D1C4;
       --panel:#FFFFFF;
       --shadow:0 14px 36px rgba(0,0,0,0.14);
-      --star:#F5C518; /* gelb */
+      --star:#F5C518; /* Sterne gelb */
     }
     *{ box-sizing:border-box; }
     html,body{ height:100%; margin:0; background:var(--bg); color:var(--ink); }
     body{ font-family:"Helvetica Neue", Inter, system-ui, Arial, sans-serif; letter-spacing:.01em; }
     #map{ width:100%; height:100vh; min-height:600px; }
 
+    /* Header */
     .map-header{
       position:absolute; top:18px; right:18px; z-index:800;
       background:rgba(255,255,255,.92); color:var(--ink);
@@ -55,17 +56,17 @@
       font-size:13.5px; line-height:1.35;
     }
     .legend li .txt{ flex:1 1 auto; min-width:0; }
-    .legend a{ color:var(--pin); text-decoration:none; }
+    .legend a{ color:#111; text-decoration:none; }       /* Links schwarz */
+    .legend a:hover{ color:var(--pin); }                 /* Hover Bordeaux */
     .legend .empty{ color:#b1aba0; font-size:12px; }
-    .note{ font-size:12px; color:#9b9488; font-style:italic; margin-top:2px; }
+    .note{ font-size:12px; color:rgba(0,0,0,.58); font-style:italic; margin-top:2px; } /* Klammerzusatz dezenter */
     .stars{ flex:0 0 auto; display:inline-flex; gap:3px; align-items:center; min-width:90px; justify-content:flex-end; margin-top:2px; }
     .stars svg{ width:16px; height:16px; }
     .stars path{ fill:var(--star); }
 
     /* Tiles minimal */
     .leaflet-tile{ filter: grayscale(100%) contrast(1.04) brightness(1.06) sepia(.08); }
-    /* Labels-Ebene dezent */
-    .leaflet-labels-pane{ opacity:.88; }
+    .leaflet-labels-pane{ opacity:.82; } /* Wasser-/Meeres-Labels dezenter */
 
     /* Popup */
     .leaflet-popup-content{ max-width:780px; color:var(--ink); margin:8px 12px; }
@@ -78,23 +79,19 @@
     .info-item .label{ font-weight:800; letter-spacing:.06em; margin-top:4px; }
     .info-item .sub{ color:var(--muted); font-size:12.5px; margin-top:2px; }
 
-    /* Galerie: Parallax + KenBurns */
+    /* Galerie: Parallax + Ken Burns */
     .gallery{
       position:relative; width:100%; max-width:720px; height:420px;
       border-radius:14px; overflow:hidden; background:#000; box-shadow:var(--shadow);
-      perspective: 800px; /* für Tilt */
+      perspective: 800px;
     }
-    .gallery .frame{
-      width:100%; height:100%; transform-style: preserve-3d; transition: transform .12s ease-out;
-    }
+    .gallery .frame{ width:100%; height:100%; transform-style: preserve-3d; transition: transform .12s ease-out; }
     .gallery img{
       width:100%; height:100%; object-fit:cover; display:block; user-select:none; -webkit-user-drag:none;
       animation: ken 14s ease-in-out infinite alternate;
     }
-    @keyframes ken{
-      0%{ transform: scale(1) translate3d(0,0,0); }
-      100%{ transform: scale(1.08) translate3d(2%, -2%, 0); }
-    }
+    @keyframes ken{ 0%{ transform: scale(1) translate3d(0,0,0); } 100%{ transform: scale(1.08) translate3d(2%, -2%, 0); } }
+
     .nav-btn{
       position:absolute; top:50%; transform:translateY(-50%);
       width:46px; height:46px; border-radius:999px; border:1px solid rgba(255,255,255,.4);
@@ -106,9 +103,7 @@
     .nav-btn svg{ width:18px; height:18px; }
 
     .desc{ margin-top:12px; font-size:13.8px; color:var(--muted); line-height:1.55; }
-    .collab-head{
-      margin-top:12px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#5e6a64; font-weight:800;
-    }
+    .collab-head{ margin-top:12px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#5e6a64; font-weight:800; }
     .logo-row{ margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; }
     .logo-row img, .logo-ph{
       width:100px; height:44px; object-fit:contain; background:#fff; border:1px solid #E3DED5; border-radius:8px; box-shadow:0 6px 14px rgba(0,0,0,.06);
@@ -118,14 +113,13 @@
     /* Panes */
     .leaflet-pane.leaflet-labels-pane{ z-index:650; pointer-events:none; }
     .leaflet-pane.country-borders{ z-index:400; }
-
     .leaflet-tooltip{ background:rgba(255,255,255,.92); border:1px solid rgba(0,0,0,.06); color:var(--ink); border-radius:8px; box-shadow:0 8px 18px rgba(0,0,0,.08); }
 
     /* Routen */
     .route{ stroke:#111; stroke-opacity:.45; stroke-width:2; stroke-dasharray:6 6; }
     .plane{ filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
 
-    /* Länderhover */
+    /* Länderhover — kontrastreicher & „Näherkommen“ */
     .hovered-country{
       fill:var(--hover) !important; fill-opacity:.26 !important;
       stroke:#333 !important; stroke-width:1.9 !important;
@@ -134,7 +128,7 @@
       transition: transform .18s ease, fill-opacity .18s ease, stroke-width .18s ease;
     }
 
-    /* Zeitstrahl rechts – dünner */
+    /* Zeitstrahl rechts — dünn */
     .timeline{
       position:absolute; right:18px; top:50%; transform:translateY(-50%);
       height:78vh; width:120px; pointer-events:none; z-index:820;
@@ -142,13 +136,16 @@
     }
     .timeline .line{ position:absolute; left:50%; transform:translateX(-50%); width:1px; height:100%; background:rgba(0,0,0,.08); }
     .timeline .year{
-      font-size:52px; letter-spacing:.05em; font-weight:300; /* dünner */
+      font-size:52px; letter-spacing:.05em; font-weight:300;
       color:rgba(0,0,0,.08); transition: color .25s ease, transform .25s ease;
       user-select:none;
     }
     .timeline .year.active{ color:rgba(0,0,0,.20); transform:scale(1.06); }
 
-    @media (max-width:1100px){ .legend,.timeline{ display:none; } .map-header{ right:12px; left:auto; } }
+    @media (max-width:1100px){
+      .legend,.timeline{ display:none; }
+      .map-header{ right:12px; left:auto; }
+    }
   </style>
 </head>
 <body>
@@ -184,12 +181,15 @@
   const safe=(u)=>encodeURI(u);
   const css =(v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
+  /* Karte */
   const map=L.map('map',{ center:[50,10], zoom:4, minZoom:3, maxZoom:12, dragging:true, scrollWheelZoom:true, tap:true });
 
+  /* Basemap + Labels (dezent) */
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{ attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
   map.createPane('labels'); map.getPane('labels').classList.add('leaflet-labels-pane');
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{ attribution:'&copy; OpenStreetMap &copy; CARTO', pane:'labels' }).addTo(map);
 
+  /* Ländergrenzen + Hover */
   map.createPane('country-borders'); map.getPane('country-borders').classList.add('country-borders');
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
     .then(r=>r.json()).then(geo=>{
@@ -207,27 +207,32 @@
       }).addTo(map);
     });
 
-  function pinSVG(size=22,color=css('--pin')){return `<svg width="${size}" height="${size*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg"><defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs><path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 6.5 12.75 7.63 14.0a0.5 0.5 0 0 0 .74 0C13.5 20.75 20 13.25 20 8c0-4.42-3.58-8-8-8z" fill="${color}" filter="url(#shadow)"/><circle cx="12" cy="8" r="3.2" fill="#fff" opacity="0.9"/></svg>`;}
+  /* Icons */
+  function pinSVG(size=22,color=css('--pin')){
+    return `<svg width="${size}" height="${size*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg"><defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs><path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 6.5 12.75 7.63 14.0a0.5 0.5 0 0 0 .74 0C13.5 20.75 20 13.25 20 8c0-4.42-3.58-8-8-8z" fill="${color}" filter="url(#shadow)"/><circle cx="12" cy="8" r="3.2" fill="#fff" opacity="0.9"/></svg>`;
+  }
   function createPinIcon(){ return L.divIcon({ className:'pin', html:pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] }); }
   const planeIcon=L.divIcon({ className:'plane', html:`<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`, iconSize:[16,16], iconAnchor:[8,8] });
 
   function iconLocation(){return `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg>`;}
   function iconAirport(){return `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`;}
 
+  /* Sterne (gelb, rechtsbündig per CSS) */
   function stars(n=4.5){
     const full=Math.floor(n), half=(n-full)>=0.5?1:0, empty=5-full-half;
-    const star=(fill)=>`<svg viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>`;
+    const star=()=>`<svg viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
     const halfStar=half?`<svg viewBox="0 0 24 24"><defs><linearGradient id="half"><stop offset="50%" stop-color="${css('--star')}"/><stop offset="50%" stop-color="#d7d2c7"/></linearGradient></defs><path fill="url(#half)" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`:'';
-    return `<span class="stars" aria-label="${n} stars">${Array(full).fill(0).map(()=>star(true)).join('')}${halfStar}${Array(empty).fill(0).map(()=>star(false)).join('')}</span>`;
+    return `<span class="stars" aria-label="${n} stars">${Array(full).fill(0).map(star).join('')}${halfStar}${Array(empty).fill(0).map(star).join('')}</span>`;
   }
 
   const P=(name,note,link,rating)=>({name, note, link, rating});
 
-  /* Punkte (gekürzt auf die, die du zuletzt aktiv verwendet hast; weitere lassen sich identisch ergänzen) */
-  const points=[
+  /* VOLLSTÄNDIGE PINS / MESSEN */
+  const points = [
+    /* 2024 */
     {
-      id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", city:"München", country:"Germany",
-      lat:48.1351, lng:11.5820,
+      id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024",
+      city:"München", country:"Germany", lat:48.1351, lng:11.5820,
       address:"MOC, Lilienthalallee 40, 80939 München, Germany",
       airport:"MUC — Munich Airport, 28 km",
       photos:[
@@ -238,49 +243,356 @@
       description:"Munich Fabric Start zeigt Textilien, Zutaten und Technologien mit klarer Fokussierung auf Performance, Qualität und Langlebigkeit. Functional Outerwear, Laminierungen und nachhaltige Finishes prägen das Materialbild. Das MOC liegt verkehrsgünstig im Norden Münchens.",
       logos:["logos/bervic.svg","logos/calpier.svg","logos/armor-lux.svg"],
       guide:{
-        food:[ P("Tantris Maison Culinaire","(Ikone der Münchner Gastronomie)","https://tantris.de",4.8), P("Brenner Grill","(Modernes Grillhaus an der Maximilianstraße)","https://brennergrill.de",4.4) ],
-        hotels:[ P("Andaz Munich Schwabinger Tor","(Designhotel, gut angebunden)","https://www.hyatt.com",4.6), P("Ruby Lilly","(Boutique, urban)","https://www.ruby-hotels.com",4.2) ],
-        spots:[ P("Pinakothek der Moderne","(Design & Architektur)","https://www.pinakothek.de",4.7), P("Englischer Garten","(Spaziergang & Eisbachwelle)","https://www.muenchen.de",4.6) ]
+        food:[ P("Tantris Maison Culinaire","(Ikone der Münchner Gastronomie)","https://tantris.de",4.8),
+               P("Brenner Grill","(Modernes Grillhaus an der Maximilianstraße)","https://brennergrill.de",4.4) ],
+        hotels:[ P("Andaz Munich Schwabinger Tor","(Designhotel, gut angebunden)","https://www.hyatt.com",4.6),
+                 P("Ruby Lilly","(Boutique, urban)","https://www.ruby-hotels.com",4.2) ],
+        spots:[ P("Pinakothek der Moderne","(Design & Architektur)","https://www.pinakothek.de",4.7),
+                P("Englischer Garten","(Spaziergang & Eisbachwelle)","https://www.muenchen.de",4.6) ]
+      }
+    },
+
+    /* 2023 */
+    {
+      id:"riva_2023", title:"Expo Riva Shoe", date:"06.2023",
+      city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
+      address:"Quartiere Fieristico, Via Baltera 20, 38066 Riva del Garda TN, Italy",
+      airport:"VRN — Verona Airport, 85 km",
+      photos:[ safe("https://picsum.photos/seed/riva1/1600/1100"),
+               safe("https://picsum.photos/seed/riva2/1600/1100") ],
+      description:"Internationale Schuhmesse mit Fokus auf Materialien, Komponenten und Sourcing. Qualität, Preis-Leistung und nachhaltige Alternativen stehen im Mittelpunkt.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Osteria La Contrada","(Regionale Küche am See)","https://example.com",4.5),
+               P("Ristorante Panem","(Brot & lokale Spezialitäten)","https://example.com",4.3) ],
+        hotels:[ P("Du Lac et Du Parc Grand Resort","(Am See, Parkanlage)","https://example.com",4.6),
+                 P("Hotel Sole Relax & Panorama","(Altstadtlage, Seeblick)","https://example.com",4.4) ],
+        spots:[ P("Monte Brione","(Aussicht & Trails)","https://example.com",4.6),
+                P("Varone Wasserfall","(Natur-Spot)","https://example.com",4.5) ]
       }
     },
     {
-      id:"pitti100", title:"PITTI UOMO 100", date:"07.2021", city:"Florenz", country:"Italy",
-      lat:43.7696, lng:11.2558,
+      id:"pitti_2023", title:"Pitti Uomo", date:"06.2023",
+      city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
       address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy",
       airport:"FLR — Florence Airport, 6 km",
-      photos:[
-        safe("https://picsum.photos/seed/pitti1/1600/1100"),
-        safe("https://picsum.photos/seed/pitti2/1600/1100")
-      ],
-      description:"Jubiläumsausgabe der renommierten Menswear-Messe. Heritage trifft auf progressive Schnitttechnik und Stoffqualität – in einer prägnanten, historischen Kulisse.",
-      logos:["logos/bervic.svg","logos/armor-lux.svg"],
+      photos:[ safe("https://picsum.photos/seed/pitti23a/1600/1100"),
+               safe("https://picsum.photos/seed/pitti23b/1600/1100") ],
+      description:"Pitti Uomo prägt die europäische Menswear-Kultur: von Tailoring bis Contemporary Brands. Der historische Veranstaltungsort Fortezza da Basso setzt eine ikonische Bühne im Herzen von Florenz.",
+      logos:["logos/armor-lux.svg","logos/bervic.svg"],
       guide:{
-        food:[ P("Trattoria Mario","(Florentinische Küche; mittags heiß begehrt)","https://goo.gl/maps/xxxx",4.6), P("La Ménagère","(Stylish, modern)","https://lamenagere.it",4.5) ],
-        hotels:[ P("Hotel Glance","(Nahe Fortezza, modern)","https://www.glancehotelflorence.com",4.4), P("Grand Hotel Minerva","(Piazza Santa Maria Novella)","https://www.grandhotelminerva.com",4.6) ],
-        spots:[ P("Uffizien","(Renaissance-Kunst)","https://www.uffizi.it",4.8), P("Piazzale Michelangelo","(Sunset-View)","https://goo.gl/maps/xxxx",4.7) ]
+        food:[ P("Trattoria Mario","(Florentinische Küche; mittags heiß begehrt)","https://goo.gl/maps/xxxx",4.6),
+               P("La Ménagère","(Stylish, modern)","https://lamenagere.it",4.5) ],
+        hotels:[ P("Hotel Glance","(Nahe Fortezza, modern)","https://www.glancehotelflorence.com",4.4),
+                 P("Grand Hotel Minerva","(Piazza Santa Maria Novella)","https://www.grandhotelminerva.com",4.6) ],
+        spots:[ P("Uffizien","(Renaissance-Kunst)","https://www.uffizi.it",4.8),
+                P("Piazzale Michelangelo","(Sunset-View)","https://goo.gl/maps/xxxx",4.7) ]
+      }
+    },
+
+    /* 2022 */
+    {
+      id:"cosmoprof_2022", title:"COSMOPROF", date:"04.2022",
+      city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy",
+      airport:"BLQ — Bologna Airport, 8 km",
+      photos:[ safe("https://picsum.photos/seed/cprof1/1600/1100") ],
+      description:"COSMOPROF versammelt internationale Aussteller rund um Beauty, Duft und Texturwelten. Breite Bühne für Material- und Packaging-Inspirationen – von Finishes bis Sensorik.",
+      logos:["logos/calpier.svg"],
+      guide:{
+        food:[ P("Trattoria di Via Serra","(Regional & herzlich)","https://example.com",4.7),
+               P("Sfoglia Rina","(Pasta-Manufaktur)","https://example.com",4.6) ],
+        hotels:[ P("Aemilia Hotel","(Modern, zentrumsnah)","https://example.com",4.4),
+                 P("I Portici","(Historisches Flair)","https://example.com",4.5) ],
+        spots:[ P("Le Due Torri","(Wahrzeichen)","https://example.com",4.6),
+                P("Quadrilatero Markt","(Food-Kultur)","https://example.com",4.5) ]
       }
     },
     {
-      id:"paris_pv_2022", title:"Première Vision", date:"02.2022", city:"Paris", country:"France",
-      lat:48.972, lng:2.519,
+      id:"cosmopack_2022", title:"COSMOPACK", date:"04.2022",
+      city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
+      address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy",
+      airport:"BLQ — Bologna Airport, 8 km",
+      photos:[ safe("https://picsum.photos/seed/cpack1/1600/1100") ],
+      description:"COSMOPACK fokussiert Verpackung, Prozesse und Kreislaufstrategien. Von Primärverpackung bis High-End-Finishes – industrielle Lösungen und nachhaltige Materialpfade.",
+      logos:["logos/calpier.svg"],
+      guide:{
+        food:[ P("Osteria dell'Orsa","(Bologna-Classic)","https://example.com",4.5),
+               P("Drogheria della Rosa","(Romantisch, regional)","https://example.com",4.6) ],
+        hotels:[ P("Royal Hotel Carlton","(Businessfreundlich)","https://example.com",4.3),
+                 P("NH Bologna de la Gare","(Zentral)","https://example.com",4.2) ],
+        spots:[ P("Portici von Bologna","(Kilometerlange Arkaden)","https://example.com",4.7),
+                P("Santo Stefano Komplex","(Sieben Kirchen)","https://example.com",4.6) ]
+      }
+    },
+    {
+      id:"maisonobjet_paris_2022", title:"Maison&Objet", date:"03.2022",
+      city:"Paris", country:"France", lat:48.972, lng:2.519,
       address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
       airport:"CDG — Charles de Gaulle, 8 km",
-      photos:[
-        safe("https://picsum.photos/seed/pv1/1600/1100"),
-        safe("https://picsum.photos/seed/pv2/1600/1100"),
-        safe("https://picsum.photos/seed/pv3/1600/1100")
-      ],
-      description:"Première Vision bringt Weber, Färbereien und Accessory-Spezialisten zusammen. Materialinnovationen, Farbklimata und Veredelungen prägen die Saisonimpulse – eine Schlüsselplattform für Qualitäts- und Nachhaltigkeitsstandards.",
-      logos:["logos/calpier.svg","logos/armor-lux.svg"],
+      photos:[ safe("https://picsum.photos/seed/mo22/1600/1100") ],
+      description:"Maison&Objet kuratiert Interieur, Lifestyle und Objekt-Design mit Fokus auf Materialästhetik, Haptik und Farbe. Villepinte ist hervorragend angebunden.",
+      logos:["logos/bervic.svg"],
       guide:{
-        food:[ P("Chez Janou","(Bistro-Klassiker)","https://www.chezjanou.com",4.5), P("Bistrot Paul Bert","(Legendäres Steak-Frites)","https://bistrot-paul-bert.com",4.6) ],
-        hotels:[ P("Novotel Paris Nord Expo","(Nähe Villepinte)","https://all.accor.com",4.0), P("Pullman Paris Roissy CDG","(Airport-Komfort)","https://all.accor.com",4.3) ],
-        spots:[ P("Atelier des Lumières","(Immersive Shows)","https://www.atelier-lumieres.com",4.6), P("Parc de la Villette","(Kulturareal)","https://lavillette.com",4.5) ]
+        food:[ P("Le Train Bleu","(Belle Époque, Gare de Lyon)","https://www.le-train-bleu.com",4.6),
+               P("Frenchie","(Moderne französische Küche)","https://www.frenchie-restaurant.com",4.7) ],
+        hotels:[ P("Okko Hotels Paris Gare de l'Est","(Modern & praktisch)","https://okkohotels.com",4.3),
+                 P("CitizenM CDG","(Direkt am Flughafen)","https://www.citizenm.com",4.2) ],
+        spots:[ P("Centre Pompidou","(Kunst & Design)","https://www.centrepompidou.fr",4.7),
+                P("Parc de la Villette","(Kulturareal)","https://lavillette.com",4.5) ]
+      }
+    },
+
+    /* 2021 */
+    {
+      id:"micam_milan_2021", title:"MICAM", date:"09.2021",
+      city:"Mailand", country:"Italy", lat:45.518, lng:9.103,
+      address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy",
+      airport:"MXP — Milano Malpensa, 45 km",
+      photos:[ safe("https://picsum.photos/seed/micam21/1600/1100") ],
+      description:"Leitmesse der internationalen Schuhindustrie. Von Oberleder bis Sohlenkomponenten – Qualität, Verarbeitung und Markeninszenierungen.",
+      logos:["logos/bervic.svg","logos/calpier.svg"],
+      guide:{
+        food:[ P("Trippa Milano","(Neo-Trattoria)","https://trippa.it",4.7),
+               P("Ratanà","(Modern lombardisch)","https://ratana.it",4.6) ],
+        hotels:[ P("nhow Milano","(Designhotel, Tortona)","https://www.nhow-hotels.com",4.3),
+                 P("UNAHOTELS Expo Fiera","(Nähe Rho)","https://www.gruppouna.it",4.2) ],
+        spots:[ P("Fondazione Prada","(Kunst & Architektur)","https://www.fondazioneprada.org",4.7),
+                P("Navigli","(Abend am Kanal)","https://example.com",4.5) ]
+      }
+    },
+    {
+      id:"pitti100", title:"Pitti Uomo 100", date:"07.2021",
+      city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
+      address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy",
+      airport:"FLR — Florence Airport, 6 km",
+      photos:[ safe("https://picsum.photos/seed/pitti100/1600/1100") ],
+      description:"Jubiläumsausgabe der renommierten Menswear-Messe. Heritage trifft progressive Schnitttechnik und Stoffqualität – prägnante Kulisse im Zentrum von Florenz.",
+      logos:["logos/armor-lux.svg"],
+      guide:{
+        food:[ P("Enoteca Pitti Gola e Cantina","(Weinbar am Palazzo Pitti)","https://www.pittigolaecantina.com",4.6),
+               P("All’Antico Vinaio","(Panini-Kult)","https://allanticovinaio.com",4.5) ],
+        hotels:[ P("Hotel L’Orologio","(Zentral, klassisch)","https://www.hotelorologioflorence.com",4.4),
+                 P("Portrait Firenze","(Luxus an der Arno)","https://www.lungarnocollection.com",4.7) ],
+        spots:[ P("Galleria dell’Accademia","(Michelangelos David)","https://www.galleriaaccademiafirenze.it",4.8),
+                P("Giardino Bardini","(Garten & Aussicht)","https://www.bardinipeyron.it",4.6) ]
+      }
+    },
+    {
+      id:"nordstil_hh", title:"Nordstil", date:"07.2021",
+      city:"Hamburg", country:"Germany", lat:53.5586, lng:9.9836,
+      address:"Hamburg Messe, Messeplatz 1, 20357 Hamburg, Germany",
+      airport:"HAM — Hamburg Airport, 9 km",
+      photos:[ safe("https://picsum.photos/seed/hhnord/1600/1100") ],
+      description:"Lifestyle-, Deko- und Gifting-Sortimente. Impulse für POS-Konzepte und Markeninszenierung mit regionaler & internationaler Ausstellerstruktur.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Bullerei","(Schanzen-Klassiker)","https://www.bullerei.com",4.5),
+               P("NENI Hamburg","(Hausmannskost modern)","https://www.25hours-hotels.com",4.4) ],
+        hotels:[ P("Mövenpick Hotel Sternschanze","(Direkt an der Messe)","https://www.movenpick.com",4.4),
+                 P("25hours HafenCity","(Design & Storytelling)","https://www.25hours-hotels.com",4.5) ],
+        spots:[ P("Elbphilharmonie","(Architektur-Ikone)","https://www.elbphilharmonie.de",4.8),
+                P("Planten un Blomen","(Park & Wasserspiele)","https://www.hamburg.de/parkanlagen/1832196/plantenunblomen",4.6) ]
+      }
+    },
+
+    /* 2020 */
+    {
+      id:"ciff_cph", title:"CIFF — Copenhagen Int. Fashion Fair", date:"08.2020",
+      city:"Kopenhagen", country:"Denmark", lat:55.632, lng:12.578,
+      address:"Bella Center, Center Blvd. 5, 2300 København, Denmark",
+      airport:"CPH — Kastrup, 6 km",
+      photos:[ safe("https://picsum.photos/seed/ciff/1600/1100") ],
+      description:"Skandinavische Marken, klares Design und starke Nachhaltigkeitsinitiativen. Klarheit, Funktion und Materialqualität prägen das Bild.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Kødbyens Fiskebar","(Seafood im Meatpacking)","https://fiskebaren.dk",4.6),
+               P("Høst","(Nordische Küche, Design)","https://cofoco.dk/en/restaurants/hoest",4.7) ],
+        hotels:[ P("Hotel SP34","(Boutique im Zentrum)","https://brochner-hotels.dk/sp34",4.4),
+                 P("AC Bella Sky","(Direkt am Bella Center)","https://www.marriott.com",4.3) ],
+        spots:[ P("Louisiana Museum","(Kunst & Meer)","https://louisiana.dk",4.8),
+                P("Superkilen Park","(Urban Design)","https://example.com",4.6) ]
+      }
+    },
+    {
+      id:"supreme_dus", title:"Supreme Women&Men", date:"07.2020",
+      city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
+      address:"B1 Fashion, Bennigsen-Platz 1, 40474 Düsseldorf, Germany",
+      airport:"DUS — Düsseldorf Airport, 6 km",
+      photos:[ safe("https://picsum.photos/seed/supreme/1600/1100") ],
+      description:"Women & Men Showrooms: Kollektionen, Qualitäten und Preispunkte im direkten Order-Gespräch.",
+      logos:["logos/calpier.svg"],
+      guide:{
+        food:[ P("Brauerei Schumacher","(Altbier & rheinische Küche)","https://www.schumacher-alt.de",4.5),
+               P("Takumi","(Ramen-Kult)","https://takumi.de",4.4) ],
+        hotels:[ P("me and all hotel","(Design, Japanviertel)","https://www.meandallhotels.com",4.4),
+                 P("25hours Das Tour","(Französischer Twist)","https://www.25hours-hotels.com",4.5) ],
+        spots:[ P("Rheinpromenade","(Spaziergang)","https://example.com",4.6),
+                P("Kunstsammlung K20","(Moderne Kunst)","https://www.kunstsammlung.de",4.7) ]
+      }
+    },
+    {
+      id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020",
+      city:"Paris", country:"France", lat:48.864, lng:2.332,
+      address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France",
+      airport:"CDG — Charles de Gaulle, 27 km",
+      photos:[ safe("https://picsum.photos/seed/tranoi20/1600/1100") ],
+      description:"Kuratiertes Designer-Line-up zwischen Kunst und Mode. Fokus auf Materialinnovationen, Verarbeitung und Markenidentität.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Verjus","(Bistronomie & Weinbar)","https://verjusparis.com",4.6),
+               P("Au Passage","(Moderne kleine Gerichte)","https://aupassageparis.fr",4.5) ],
+        hotels:[ P("Hotel Louvre Saint-Honoré","(Louvre-Nähe)","https://www.hotellouvresainthonore.com",4.2),
+                 P("Hotel du Louvre","(Hyatt – klassisch)","https://www.hyatt.com",4.5) ],
+        spots:[ P("Tuilerien & Louvre","(Spaziergang & Kunst)","https://www.louvre.fr",4.8),
+                P("Palais Royal","(Gärten & Arkaden)","https://www.domaine-palais-royal.fr",4.6) ]
+      }
+    },
+
+    /* 2019 */
+    {
+      id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019",
+      city:"London", country:"United Kingdom", lat:51.495, lng:-0.210,
+      address:"Olympia London, Hammersmith Rd, London W14 8UX, UK",
+      airport:"LHR — Heathrow, 20 km",
+      photos:[ safe("https://picsum.photos/seed/tdrawer/1600/1100") ],
+      description:"Design-led Retail mit Fokus auf Interior, Gifting und Marken-Storytelling. Gute Quelle für Packaging- und VM-Inspiration.",
+      logos:["logos/armor-lux.svg"],
+      guide:{
+        food:[ P("Dishoom Kensington","(Bombay Café)","https://www.dishoom.com",4.6),
+               P("Sticks'n'Sushi","(Nordic-Japan)","https://sticksnsushi.com",4.5) ],
+        hotels:[ P("K West Hotel","(Shepherd’s Bush)","https://www.k-west.co.uk",4.1),
+                 P("The Resident Kensington","(Boutique)","https://www.residenthotels.com",4.4) ],
+        spots:[ P("Design Museum","(Architektur & Design)","https://designmuseum.org",4.7),
+                P("Holland Park Kyoto Garden","(Ruhe-Spot)","https://www.rbkc.gov.uk",4.6) ]
+      }
+    },
+    {
+      id:"whosnext_ldn", title:"Who’s Next?", date:"09.2019",
+      city:"London", country:"United Kingdom", lat:51.508, lng:-0.028,
+      address:"ExCeL London, 1 Western Gateway, London E16 1XL, UK",
+      airport:"LCY — London City, 4 km",
+      photos:[ safe("https://picsum.photos/seed/whosnext/1600/1100") ],
+      description:"Zeitgenössische Mode- & Accessoires-Schau mit Fokus auf Retail-Relevanz und Brand-Mix. (London-Edition)",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("ROKA Canary Wharf","(Robata Grill)","https://www.rokarestaurant.com",4.6),
+               P("Plateau","(Modern European)","https://www.plateau-restaurant.co.uk",4.4) ],
+        hotels:[ P("Good Hotel London","(Floating hotel)","https://www.goodhotellondon.com",4.2),
+                 P("Aloft London Excel","(Direkt am Messegelände)","https://www.marriott.com",4.3) ],
+        spots:[ P("Greenwich Park","(Blick auf City)","https://www.royalparks.org.uk",4.7),
+                P("Thames Path","(Riverside Walk)","https://www.nationaltrail.co.uk",4.6) ]
+      }
+    },
+    {
+      id:"tranoi_paris_2019", title:"TRANOÏ", date:"09.2019",
+      city:"Paris", country:"France", lat:48.864, lng:2.332,
+      address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France",
+      airport:"CDG — Charles de Gaulle, 27 km",
+      photos:[ safe("https://picsum.photos/seed/tranoi19/1600/1100") ],
+      description:"Designer-Präsentationen mit präziser Material- und Prozesssprache. Schnittstelle zwischen Atelier, Industrie und Retail.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Septime","(Moderne Küche)","https://septime-charonne.fr",4.8),
+               P("Buvette Paris","(Brunch & Wein)","https://ilovebuvette.com",4.5) ],
+        hotels:[ P("Hôtel des Grands Boulevards","(Trendy)","https://www.grandsboulevards.com",4.5),
+                 P("Hôtel Crayon Rouge","(Boutique)","https://www.lecrayon.com",4.3) ],
+        spots:[ P("Musée d’Orsay","(Impressionismus)","https://www.musee-orsay.fr",4.8),
+                P("Canal Saint-Martin","(Cafés & Flanieren)","https://example.com",4.6) ]
+      }
+    },
+    {
+      id:"maisonobjet_paris_2019", title:"Maison&Objet", date:"01.2019",
+      city:"Paris", country:"France", lat:48.972, lng:2.519,
+      address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France",
+      airport:"CDG — Charles de Gaulle, 8 km",
+      photos:[ safe("https://picsum.photos/seed/mo19/1600/1100") ],
+      description:"Home & Object mit starkem Fokus auf Oberflächen, Handwerk und Farbklimata. Ideal für Mood- und Materialrecherchen.",
+      logos:["logos/armor-lux.svg"],
+      guide:{
+        food:[ P("Clown Bar","(Natural Wine & Bistro)","https://clown-bar-paris.fr",4.6),
+               P("Holybelly","(Café-Klassiker)","https://holybellycafe.com",4.5) ],
+        hotels:[ P("Okko Hotels Rosny","(Budget-Design)","https://okkohotels.com",4.1),
+                 P("citizenM CDG","(Airport-Hotel)","https://www.citizenm.com",4.2) ],
+        spots:[ P("La Seine Musicale","(Architektur, Konzerte)","https://www.laseinemusicale.com",4.6),
+                P("Atelier des Lumières","(Immersive Kunst)","https://www.atelier-lumieres.com",4.7) ]
+      }
+    },
+
+    /* 2018 */
+    {
+      id:"micam_milan_2018", title:"MICAM", date:"09.2018",
+      city:"Mailand", country:"Italy", lat:45.518, lng:9.103,
+      address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy",
+      airport:"MXP — Milano Malpensa, 45 km",
+      photos:[ safe("https://picsum.photos/seed/micam18/1600/1100") ],
+      description:"Leitmesse der Schuhindustrie. Komponenten, Obermaterialien und internationale Marken setzen Maßstäbe.",
+      logos:["logos/calpier.svg"],
+      guide:{
+        food:[ P("Da Giacomo","(Mailänder Klassiker)","https://www.giacomo.it",4.6),
+               P("Soulgreen","(Plant-based)","https://www.soulgreen.com",4.5) ],
+        hotels:[ P("NH Collection Milano CityLife","(Neu & modern)","https://www.nh-collection.com",4.5),
+                 P("UNAHOTELS Expo Fiera","(Nähe Rho)","https://www.gruppouna.it",4.2) ],
+        spots:[ P("ADI Design Museum","(Italienisches Design)","https://www.adidesignmuseum.org",4.7),
+                P("Brera","(Gassen & Galerien)","https://example.com",4.6) ]
+      }
+    },
+    {
+      id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018",
+      city:"Berlin", country:"Germany", lat:52.5, lng:13.375,
+      address:"STATION Berlin, Luckenwalder Str. 4–6, 10963 Berlin, Germany",
+      airport:"BER — Berlin Brandenburg, 20 km",
+      photos:[ safe("https://picsum.photos/seed/ftber/1600/1100") ],
+      description:"Schnittstelle von Technologie und Mode: Digitalisierung, Automatisierung, neue Materialien und Prozesse.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Nobelhart & Schmutzig","(Regional radikal)","https://nobelhartundschmutzig.com",4.7),
+               P("Coda Dessert Dining","(Dessert-Menü)","https://www.coda-berlin.de",4.7) ],
+        hotels:[ P("Michelberger Hotel","(Kreative Community)","https://michelbergerhotel.com",4.5),
+                 P("25hours Bikini","(Urban Jungle)","https://www.25hours-hotels.com",4.6) ],
+        spots:[ P("Hamburger Bahnhof","(Moderne Kunst)","https://www.smb.museum",4.7),
+                P("Tempelhofer Feld","(Weite & Urbanität)","https://www.thf-berlin.de",4.6) ]
+      }
+    },
+    {
+      id:"seek_berlin", title:"SEEK", date:"01.2018",
+      city:"Berlin", country:"Germany", lat:52.5, lng:13.45,
+      address:"Arena Berlin, Eichenstr. 4, 12435 Berlin, Germany",
+      airport:"BER — Berlin Brandenburg, 18 km",
+      photos:[ safe("https://picsum.photos/seed/seek/1600/1100") ],
+      description:"Zeitgenössische Fashion-Plattform mit Markenmix, Materialqualität und Order-Relevanz.",
+      logos:["logos/armor-lux.svg"],
+      guide:{
+        food:[ P("Burgermeister","(Ikonischer Burger)","https://www.burger-meister.de",4.5),
+               P("Benedict","(24/7 Breakfast)","https://www.benedict-breakfast.de",4.4) ],
+        hotels:[ P("nhow Berlin","(Musik-Hotel)","https://www.nhow-hotels.com",4.3),
+                 P("Orania.Berlin","(Design & Jazz)","https://orania.berlin",4.6) ],
+        spots:[ P("East Side Gallery","(Mauer-Kunst)","https://www.eastsidegalleryberlin.com",4.7),
+                P("Badeschiff","(Spree-Pool)","https://arena.berlin/venues/badeschiff",4.5) ]
+      }
+    },
+
+    /* 2017 */
+    {
+      id:"panorama_berlin_2017", title:"Panorama Berlin", date:"01.2017",
+      city:"Berlin", country:"Germany", lat:52.51, lng:13.375,
+      address:"Messe Berlin, Messedamm 22, 14055 Berlin, Germany",
+      airport:"BER — Berlin Brandenburg, 28 km",
+      photos:[ safe("https://picsum.photos/seed/panorama/1600/1100") ],
+      description:"Fashion-Tradeshow mit breiter Segmentierung und guter Marktorientierung – nützlich für Preispunkte und Sortiment.",
+      logos:["logos/bervic.svg"],
+      guide:{
+        food:[ P("Paris-Moskau","(Klassiker am Park)","https://www.parismoskau.de",4.4),
+               P("Katz Orange","(Slow Food)","https://www.katzorange.com",4.6) ],
+        hotels:[ P("AMANO Grand Central","(Am Hbf)","https://www.amanogroup.de",4.3),
+                 P("Steigenberger am Kanzleramt","(Business, Blick)","https://www.steigenberger.com",4.5) ],
+        spots:[ P("Siegessäule & Tiergarten","(Spaziergang)","https://www.stiftung-denkmal.de",4.6),
+                P("Bikini Berlin","(Concept Mall)","https://www.bikiniberlin.de",4.5) ]
       }
     }
-    // → weitere Punkte wie zuvor auffüllen (Guide ist immer im selben Format mit 2 Einträgen pro Kategorie)
   ];
 
+  /* Popup-HTML */
   function popupHTML(pt){
     const title=`<div class="title-line"><h3 class="city-label">${pt.title}</h3></div>`;
     const meta =`<div class="meta-line"><span>${pt.city}, ${pt.country}</span><span>${pt.date||''}</span></div>`;
@@ -308,6 +620,7 @@
     `;
   }
 
+  /* Galerie-Logic (Swipe, Parallax, KenBurns, wiederholbares Öffnen) */
   const galleryIndex=new Map();
   function bindGalleryHandlers(container, photos, id){
     const frame=container.querySelector('.gallery .frame');
@@ -352,6 +665,7 @@
     render();
   }
 
+  /* Legend & Ratings */
   function ratingStars(n){ return stars(n); }
   function updateLegend(pt){
     const meta=document.getElementById('legend-meta');
@@ -380,8 +694,10 @@
     fill(spots, pt.guide?.spots);
   }
 
+  /* Zeitstrahl */
   function highlightYear(y){ document.querySelectorAll('.timeline .year').forEach(n=>n.classList.toggle('active', n.dataset.y===y)); }
 
+  /* Flugrouten */
   const HAMBURG=[53.5511,9.9937];
   let lastPoint=null;
   const routeLayer=L.layerGroup().addTo(map);
@@ -391,6 +707,7 @@
     L.marker([lat,lng],{ icon:planeIcon, interactive:false }).addTo(routeLayer);
   }
 
+  /* Marker & Popups */
   const markers=[];
   points.forEach(pt=>{
     const m=L.marker([pt.lat,pt.lng],{ icon:createPinIcon(), custom:{pt} }).addTo(map);
@@ -411,6 +728,7 @@
     m.on('click',()=>m.openPopup());
   });
 
+  /* Fit Bounds */
   const latlngs=points.map(p=>[p.lat,p.lng]);
   if(latlngs.length){ const b=L.latLngBounds(latlngs); map.fitBounds(b.pad(.25)); }
 </script>
