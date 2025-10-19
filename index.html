@@ -14,16 +14,15 @@
       --muted:#6B7A73;       /* Gedämpftes Grün-Grau */
       --pin:#7A0019;         /* Bordeaux */
       --border:#9BA8A2;      /* Landesgrenzen */
-      --hover:#E7E1D6;       /* Hover-Füllung */
+      --hover:#D8D1C4;       /* Hover-Füllung */
       --panel:#FFFFFF;       /* Panels */
       --shadow:0 14px 36px rgba(0,0,0,0.14);
-      --star:#111;           /* Sterne (schwarz) */
     }
     *{ box-sizing:border-box; }
     html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
-    body { font-family: "Helvetica Neue", Inter, system-ui, Arial, sans-serif; letter-spacing:0.01em; }
+    body { font-family:"Helvetica Neue", Inter, system-ui, Arial, sans-serif; letter-spacing:0.01em; }
 
-    #map { width:100%; height:100vh; min-height:580px; }
+    #map { width:100%; height:100vh; min-height:600px; }
 
     /* Header */
     .map-header {
@@ -32,21 +31,17 @@
       padding:12px 16px; border-radius:12px; border:1px solid rgba(0,0,0,0.06);
       box-shadow:0 10px 24px rgba(14,59,46,0.08); backdrop-filter: blur(2px);
     }
-    .map-header h3 {
-      margin:0; font-size:15px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700;
-    }
+    .map-header h3 { margin:0; font-size:15px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; }
     .map-header p { margin:6px 0 0; font-size:13px; color:var(--muted); letter-spacing:0.04em; }
 
-    /* Sidebar / Legende LINKS, mittig (unter +/–) */
+    /* Legend links, mittig (unter Zoom) */
     .legend {
       position:absolute; left:18px; top:50%; transform:translateY(-50%);
       width:310px; max-width:35vw; z-index:850;
       background:var(--panel); border:1px solid rgba(0,0,0,0.06); border-radius:14px;
       box-shadow:var(--shadow); padding:14px 16px;
     }
-    .legend h4{
-      margin:0 0 8px; font-size:13px; letter-spacing:0.14em; text-transform:uppercase; font-weight:800;
-    }
+    .legend h4{ margin:0 0 8px; font-size:13px; letter-spacing:0.14em; text-transform:uppercase; font-weight:800; }
     .legend .meta { font-size:12.5px; color:var(--muted); margin-bottom:6px; }
     .legend .group{ margin-top:12px; }
     .legend .group h5{ margin:0 0 8px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#5e6a64; }
@@ -57,22 +52,18 @@
     .stars { display:inline-flex; gap:2px; vertical-align:middle; margin-left:6px; }
     .stars svg{ width:12px; height:12px; }
 
-    /* Tiles minimal (Labels kommen separat) */
+    /* Tiles minimal (Labels separat) */
     .leaflet-tile { filter: grayscale(100%) contrast(1.04) brightness(1.06) sepia(0.08); }
 
     /* Popup */
-    .leaflet-popup-content { max-width: 720px; color:var(--ink); margin: 8px 12px; }
+    .leaflet-popup-content { max-width: 760px; color:var(--ink); margin: 8px 12px; }
     .title-line .city-label { font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin:0; font-size:15px; }
     .meta-line { display:flex; gap:14px; font-size:12.5px; color:var(--muted); margin:6px 0 10px; flex-wrap:wrap; }
     .meta-line span { white-space:nowrap; }
 
-    /* Info-Icons-Reihe (tabellenartig, ohne Linien) */
-    .info-row{
-      display:flex; gap:22px; margin:10px 0 14px; flex-wrap:wrap;
-    }
-    .info-item{
-      display:flex; flex-direction:column; align-items:flex-start; min-width:180px;
-    }
+    /* „Tabellen“-Infoblöcke mit Icons */
+    .info-row{ display:flex; gap:22px; margin:12px 0 16px; flex-wrap:wrap; }
+    .info-item{ display:flex; flex-direction:column; align-items:flex-start; min-width:220px; }
     .info-item .icons{ display:flex; gap:6px; align-items:center; }
     .info-item .icons svg{ width:16px; height:16px; color:#111; }
     .info-item .label{ font-weight:800; letter-spacing:0.06em; margin-top:4px; }
@@ -80,7 +71,7 @@
 
     /* Galerie groß & swipebar */
     .gallery {
-      position: relative; width: 100%; max-width: 680px; height: 400px;
+      position: relative; width: 100%; max-width: 700px; height: 420px;
       border-radius: 14px; overflow: hidden; background: #000;
       box-shadow: var(--shadow);
       touch-action: pan-y;
@@ -117,10 +108,45 @@
     .leaflet-tooltip { background:rgba(255,255,255,0.92); border:1px solid rgba(0,0,0,0.06); color:var(--ink); border-radius:8px; box-shadow:0 8px 18px rgba(0,0,0,0.08); }
 
     /* Flugroute */
-    .route { stroke:#111; stroke-opacity:0.4; stroke-width:2; stroke-dasharray:6 6; }
+    .route { stroke:#111; stroke-opacity:0.45; stroke-width:2; stroke-dasharray:6 6; }
     .plane { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25)); }
+
+    /* Hover-Effekt Länder – kontrastreicher + „näher kommen“ */
+    .hovered-country{
+      fill: var(--hover) !important;
+      fill-opacity: .22 !important;
+      stroke: #333 !important;
+      stroke-width: 1.8 !important;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.18));
+      transform: scale(1.015);           /* leichtes Scale für „Näherkommen“ */
+      transform-origin: center;
+      transition: transform .18s ease, fill-opacity .18s ease, stroke-width .18s ease;
+    }
+
+    /* Zeitstrahl rechts */
+    .timeline {
+      position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+      height: 78vh; width: 120px; pointer-events: none; z-index: 820;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    }
+    .timeline .line {
+      position:absolute; left: 50%; transform: translateX(-50%);
+      width:1px; height:100%; background: rgba(0,0,0,.08);
+    }
+    .timeline .year {
+      font-size: 52px; letter-spacing: .06em; font-weight: 800;
+      color: rgba(0,0,0,.08);
+      transition: color .25s ease, transform .25s ease;
+      user-select:none;
+    }
+    .timeline .year.active {
+      color: rgba(0,0,0,.20);
+      transform: scale(1.06);
+    }
+
     @media (max-width:1100px){
       .legend{ display:none; } /* Mobile: Legende ausblenden */
+      .timeline{ display:none; }
     }
   </style>
 </head>
@@ -133,31 +159,33 @@
   <p>Drag to move. Scroll to zoom. Click pins to view the gallery.</p>
 </div>
 
-<!-- Seiten-Legende links, mittig -->
+<!-- Legend links, mittig -->
 <aside class="legend" id="legend">
   <h4>City Guide</h4>
   <div class="meta" id="legend-meta">Wähle einen Messestandort.</div>
-
-  <div class="group">
-    <h5>Restaurants</h5>
-    <ul id="legend-food"><li class="empty">Noch keine Einträge</li></ul>
-  </div>
-  <div class="group">
-    <h5>Hotels</h5>
-    <ul id="legend-hotels"><li class="empty">Noch keine Einträge</li></ul>
-  </div>
-  <div class="group">
-    <h5>Spots & Experiences</h5>
-    <ul id="legend-spots"><li class="empty">Noch keine Einträge</li></ul>
-  </div>
+  <div class="group"><h5>Restaurants</h5><ul id="legend-food"><li class="empty">Noch keine Einträge</li></ul></div>
+  <div class="group"><h5>Hotels</h5><ul id="legend-hotels"><li class="empty">Noch keine Einträge</li></ul></div>
+  <div class="group"><h5>Spots & Experiences</h5><ul id="legend-spots"><li class="empty">Noch keine Einträge</li></ul></div>
 </aside>
+
+<!-- Zeitstrahl rechts -->
+<div class="timeline" id="timeline">
+  <div class="line"></div>
+  <div class="year" data-y="2018">2018</div>
+  <div class="year" data-y="2019">2019</div>
+  <div class="year" data-y="2020">2020</div>
+  <div class="year" data-y="2021">2021</div>
+  <div class="year" data-y="2022">2022</div>
+  <div class="year" data-y="2023">2023</div>
+  <div class="year" data-y="2024">2024</div>
+</div>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  const safe = (u) => encodeURI(u);
-  const css = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const safe = (u)=>encodeURI(u);
+  const css  = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
   /* ---------- Karte ---------- */
   const map = L.map('map', {
@@ -172,8 +200,7 @@
 
   // Basemap ohne Labels
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    noWrap:false
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
   }).addTo(map);
 
   // Labels-Overlay (Länder/Städte)
@@ -184,174 +211,279 @@
     pane: 'labels'
   }).addTo(map);
 
-  // Länder-Grenzen & Hover
+  // Länder-Grenzen & Hover (mit "Näherkommen"-Effekt)
   map.createPane('country-borders');
   map.getPane('country-borders').classList.add('country-borders');
   fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
     .then(r => r.json())
     .then(geo => {
-      const style = { color:css('--border'), weight:0.9, opacity:0.9, fillColor:'#000', fillOpacity:0.02 };
-      const hover = { weight:1.5, fillOpacity:0.10, fillColor:css('--hover') };
-      L.geoJSON(geo, {
+      const baseStyle = { color:css('--border'), weight:0.9, opacity:0.9, fillColor:'#000', fillOpacity:0.02, className:'country' };
+      const layer = L.geoJSON(geo, {
         pane:'country-borders',
-        style: () => style,
-        onEachFeature: (feature, layer) => {
-          const b = layer.getBounds();
+        style: ()=> baseStyle,
+        onEachFeature: (feature, lyr) => {
+          const b = lyr.getBounds();
+          // Europa-Grobfilter
           if (b && (b.getSouth()>35 && b.getNorth()<72 && b.getWest()<35 && b.getEast()>-25)) {
-            layer.on('mouseover', () => layer.setStyle(hover));
-            layer.on('mouseout',  () => layer.setStyle(style));
-          } else layer.options.interactive = false;
+            lyr.on('mouseover', () => {
+              const p = lyr.getElement();
+              if(p){ p.classList.add('hovered-country'); }
+              lyr.bringToFront();
+            });
+            lyr.on('mouseout', () => {
+              const p = lyr.getElement();
+              if(p){ p.classList.remove('hovered-country'); }
+            });
+          } else lyr.options.interactive = false;
         }
       }).addTo(map);
     });
 
   /* ---------- Icons ---------- */
   function pinSVG(size=22, color=css('--pin')){
-    const s = size;
     return `
-      <svg width="${s}" height="${s*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg width="${size}" height="${size*1.25}" viewBox="0 0 24 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs>
         <path d="M12 0C7.58 0 4 3.58 4 8c0 5.25 6.5 12.75 7.63 14.0a0.5 0.5 0 0 0 .74 0C13.5 20.75 20 13.25 20 8c0-4.42-3.58-8-8-8z" fill="${color}" filter="url(#shadow)"/>
         <circle cx="12" cy="8" r="3.2" fill="#fff" opacity="0.9"/>
       </svg>`;
   }
-  function createPinIcon(){
-    return L.divIcon({ className:'pin', html: pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] });
-  }
-  const planeIcon = L.divIcon({
-    className:'plane',
-    html:`<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
-    iconSize:[16,16], iconAnchor:[8,8]
-  });
+  function createPinIcon(){ return L.divIcon({ className:'pin', html: pinSVG(22), iconSize:[22,28], iconAnchor:[11,24], popupAnchor:[0,-22] }); }
+  const planeIcon = L.divIcon({ className:'plane', html:`<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`, iconSize:[16,16], iconAnchor:[8,8] });
 
   function iconLocation(){ return `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg>`; }
   function iconAirport(){ return `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="#111" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-2.5V19l-2 1.5V22l3.5-1L15 22v-1.5L13 19v-5.5l8 2.5z"/></svg>`; }
   function stars(n=4.5){
-    const full = Math.floor(n), half = (n-full)>=0.5 ? 1 : 0, empty = 5-full-half;
-    const s = (filled)=>`<svg viewBox="0 0 24 24"><path fill="${filled?'#111':'#c9c4ba'}" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
-    const h = half?`<svg viewBox="0 0 24 24"><defs><linearGradient id="half"><stop offset="50%" stop-color="#111"/><stop offset="50%" stop-color="#c9c4ba"/></linearGradient></defs><path fill="url(#half)" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`:'';
-    return `<span class="stars">${Array(full).fill(0).map(s).join('')}${h}${Array(empty).fill(0).map(()=>s(false)).join('')}</span>`;
+    const full=Math.floor(n), half=(n-full)>=0.5?1:0, empty=5-full-half;
+    const star = (fill)=>`<svg viewBox="0 0 24 24"><path fill="${fill?'#111':'#c9c4ba'}" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    const halfStar = half?`<svg viewBox="0 0 24 24"><defs><linearGradient id="half"><stop offset="50%" stop-color="#111"/><stop offset="50%" stop-color="#c9c4ba"/></linearGradient></defs><path fill="url(#half)" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`:'';
+    return `<span class="stars">${Array(full).fill(0).map(()=>star(true)).join('')}${halfStar}${Array(empty).fill(0).map(()=>star(false)).join('')}</span>`;
   }
 
-  /* ---------- Datenpunkte: ALLE Standorte aus deiner Liste ---------- */
-  // Hinweis: Ergänze/prüfe photos/logos/guide/ratings nach Bedarf.
+  /* ---------- Punkte inkl. Guide (2 je Kategorie, fiktive Links) ---------- */
+  const P = (name, note, link, rating)=>({name, note, link, rating});
   const points = [
-    // 2024
     { id:"mfs_2024", title:"Munich Fabric Start", date:"09.2024", city:"München", country:"Germany", lat:48.1351, lng:11.5820,
       address:"MOC, Lilienthalallee 40, 80939 München, Germany", airport:"MUC — Munich Airport, 28 km",
       photos:[ safe("photos/munich1.jpg"), safe("photos/munich2.jpg") ],
       description:"Munich Fabric Start zeigt Textilien, Zutaten und Technologien mit klarer Fokussierung auf Performance, Qualität und Langlebigkeit. Functional Outerwear, Laminierungen und nachhaltige Finishes prägen das Materialbild. Das MOC liegt verkehrsgünstig im Norden Münchens.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{}
+      logos:[],
+      guide:{ 
+        food:[ P("Tantris Maison Culinaire","Ikone der Münchner Gastronomie.","https://tantris.de",4.8), P("Brenner Grill","Modernes Grillhaus an der Maximilianstraße.","https://brennergrill.de",4.4) ],
+        hotels:[ P("Andaz Munich Schwabinger Tor","Designhotel, gut angebunden.","https://www.hyatt.com",4.6), P("Ruby Lilly","Boutique, urban.","https://www.ruby-hotels.com",4.2) ],
+        spots:[ P("Pinakothek der Moderne","Design & Architektur.","https://www.pinakothek.de",4.7), P("Englischer Garten","Spaziergang & Eisbachwelle.","https://www.muenchen.de",4.6) ]
+      }
     },
-
-    // 2023
     { id:"riva_2023", title:"Expo Riva Shoe", date:"06.2023", city:"Riva del Garda", country:"Italy", lat:45.886, lng:10.841,
       address:"Quartiere Fieristico, Via Baltera 20, 38066 Riva del Garda TN, Italy", airport:"VRN — Verona Airport, 85 km",
-      photos:[], description:"Internationale Schuhmesse mit Fokus auf Materialien, Komponenten und Sourcing. Starke Orientierung auf Qualität und Preis-Leistung, mit Einblicken in nachhaltige Alternativen und Lieferketten.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      photos:[],
+      description:"Internationale Schuhmesse mit Fokus auf Materialien, Komponenten und Sourcing. Starke Orientierung auf Qualität und Preis-Leistung, mit Einblicken in nachhaltige Alternativen und Lieferketten.",
+      logos:[],
+      guide:{
+        food:[ P("Osteria La Contrada","Regionale Küche am See.","https://example.com",4.5), P("Ristorante Panem","Brot & lokale Spezialitäten.","https://example.com",4.3) ],
+        hotels:[ P("Du Lac et Du Parc Grand Resort","Am See, weitläufiger Park.","https://example.com",4.6), P("Hotel Sole Relax & Panorama","Altstadtlage, Seeblick.","https://example.com",4.4) ],
+        spots:[ P("Monte Brione","Aussicht & Trails.","https://example.com",4.6), P("Varone Wasserfall","Natur-Spot.","https://example.com",4.5) ]
+      }
+    },
     { id:"pitti_2023", title:"Pitti Uomo", date:"06.2023", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
       address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy", airport:"FLR — Florence Airport, 6 km",
       photos:[ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
       description:"Pitti Uomo prägt die europäische Menswear-Kultur: von Tailoring bis Contemporary Brands. Der historische Veranstaltungsort Fortezza da Basso schafft eine ikonische Bühne im Herzen der Stadt. Materialqualität, Verarbeitung und Ästhetik stehen im Fokus.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-
-    // 2022
+      logos:[],
+      guide:{
+        food:[ P("Trattoria Mario","Mittagsklassiker, florentinisch.","https://example.com",4.6), P("La Ménagère","Stylish, modern.","https://example.com",4.5) ],
+        hotels:[ P("Hotel Glance","Nahe Fortezza, modern.","https://example.com",4.4), P("Grand Hotel Minerva","Piazza Santa Maria Novella.","https://example.com",4.6) ],
+        spots:[ P("Uffizien","Renaissance-Kunst.","https://example.com",4.8), P("Piazzale Michelangelo","Sunset-View.","https://example.com",4.7) ]
+      }
+    },
     { id:"cosmoprof_2022", title:"COSMOPROF", date:"04.2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
       address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy", airport:"BLQ — Bologna Airport, 8 km",
       photos:[], description:"COSMOPROF vereint internationale Aussteller rund um Beauty, Duft und Texturwelten. Für Material- und Packaging-Inspirationen bietet die Messe eine breite Bühne – von neuen Finishes bis sensorischer Qualität.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Trattoria di Via Serra","Regional & herzlich.","https://example.com",4.7), P("Sfoglia Rina","Pasta-Manufaktur.","https://example.com",4.6) ],
+        hotels:[ P("Aemilia Hotel","Modern, nah zum Zentrum.","https://example.com",4.4), P("I Portici","Historisches Flair.","https://example.com",4.5) ],
+        spots:[ P("Le Due Torri","Wahrzeichen der Stadt.","https://example.com",4.6), P("Quadrilatero Markt","Food-Kultur.","https://example.com",4.5) ]
+      }
+    },
     { id:"cosmopack_2022", title:"COSMOPACK", date:"04.2022", city:"Bologna", country:"Italy", lat:44.4949, lng:11.3426,
       address:"BolognaFiere, Viale della Fiera 20, 40127 Bologna, Italy", airport:"BLQ — Bologna Airport, 8 km",
       photos:[], description:"COSMOPACK fokussiert Verpackung, Prozesse und Kreislaufstrategien. Von Primärverpackung bis High-End-Finishes werden industrielle Lösungen und nachhaltige Materialpfade sichtbar.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-    { id:"maisonobjet_paris", title:"Maison&Objet", date:"03.2022", city:"Paris", country:"France", lat:48.972, lng:2.519, /* Villepinte */
+      logos:[],
+      guide:{
+        food:[ P("Osteria dell'Orsa","Bologna-Classic.","https://example.com",4.5), P("Drogheria della Rosa","Romantisch, regional.","https://example.com",4.6) ],
+        hotels:[ P("Royal Hotel Carlton","Businessfreundlich.","https://example.com",4.3), P("NH Bologna de la Gare","Zentral.","https://example.com",4.2) ],
+        spots:[ P("Portici von Bologna","Kilometerlange Arkaden.","https://example.com",4.7), P("Santo Stefano Komplex","Sieben Kirchen.","https://example.com",4.6) ]
+      }
+    },
+    { id:"maisonobjet_paris", title:"Maison&Objet", date:"03.2022", city:"Paris", country:"France", lat:48.972, lng:2.519,
       address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France", airport:"CDG — Charles de Gaulle, 8 km",
       photos:[], description:"Maison&Objet kuratiert Interieur, Lifestyle und Objekt-Design mit starkem Fokus auf Materialästhetik, Haptik und Farbe. Der Standort Villepinte ist hervorragend angebunden.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Le Train Bleu","Belle Époque, Gare de Lyon.","https://example.com",4.6), P("Frenchie","Moderne französische Küche.","https://example.com",4.7) ],
+        hotels:[ P("Okko Hotels Paris Gare de l'Est","Modern & praktisch.","https://example.com",4.3), P("CitizenM CDG","Direkt am Flughafen.","https://example.com",4.2) ],
+        spots:[ P("Centre Pompidou","Kunst & Design.","https://example.com",4.7), P("Parc de la Villette","Kulturareal.","https://example.com",4.5) ]
+      }
+    },
     { id:"paris_pv_2022", title:"Première Vision", date:"02.2022", city:"Paris", country:"France", lat:48.972, lng:2.519,
       address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France", airport:"CDG — Charles de Gaulle, 8 km",
       photos:[ safe("photos/paris1.jpg") ],
       description:"Première Vision bringt Weber, Färbereien und Accessory-Spezialisten zusammen. Materialinnovationen, Farbklimata und Veredelungen prägen die Saisonimpulse – eine Schlüsselplattform für Qualitäts- und Nachhaltigkeitsstandards.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-
-    // 2021
-    { id:"micam_milan_2021", title:"MICAM", date:"09.2021", city:"Milano", country:"Italy", lat:45.518, lng:9.103, /* Fiera Milano Rho */
+      logos:[],
+      guide:{
+        food:[ P("Chez Janou","Bistro-Klassiker.","https://example.com",4.5), P("Bistrot Paul Bert","Legendäres Steak-Frites.","https://example.com",4.6) ],
+        hotels:[ P("Novotel Paris Nord Expo","Nähe Villepinte.","https://example.com",4.0), P("Pullman Paris Roissy CDG","Airport-Komfort.","https://example.com",4.3) ],
+        spots:[ P("Atelier des Lumières","Immersive Shows.","https://example.com",4.6), P("La Villette","Design & Musik.","https://example.com",4.5) ]
+      }
+    },
+    { id:"micam_milan_2021", title:"MICAM", date:"09.2021", city:"Milano", country:"Italy", lat:45.518, lng:9.103,
       address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy", airport:"MXP — Milano Malpensa, 45 km",
       photos:[], description:"MICAM ist eine Leitmesse der internationalen Schuhindustrie. Von Oberleder bis Sohlenkomponenten werden Qualität, Verarbeitung und Markeninszenierungen sichtbar.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Trippa Milano","Neo-Trattoria.","https://example.com",4.7), P("Ratanà","Modern lombardisch.","https://example.com",4.6) ],
+        hotels:[ P("nhow Milano","Designhotel, Tortona.","https://example.com",4.3), P("UNAHOTELS Expo Fiera","Nähe Rho.","https://example.com",4.2) ],
+        spots:[ P("Fondazione Prada","Kunst & Architektur.","https://example.com",4.7), P("Navigli","Abend am Kanal.","https://example.com",4.5) ]
+      }
+    },
     { id:"pitti100", title:"PITTI UOMO 100", date:"07.2021", city:"Florenz", country:"Italy", lat:43.7696, lng:11.2558,
       address:"Fortezza da Basso, Viale Filippo Strozzi 1, 50129 Firenze, Italy", airport:"FLR — Florence Airport, 6 km",
       photos:[ safe("1_firenze_%2021.jpeg"), safe("2_firenze_ 21.jpeg") ],
       description:"Jubiläumsausgabe der renommierten Menswear-Messe. Heritage trifft auf progressive Schnitttechnik und Stoffqualität – in einer prägnanten, historischen Kulisse.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-    { id:"nordstil_hh", title:"NORDSTIL", date:"07.2021", city:"Hamburg", country:"Germany", lat:53.5586, lng:9.9836, /* Messe Hamburg */
+      logos:[],
+      guide:{
+        food:[ P("Enoteca Pitti Gola e Cantina","Weinbar am Palazzo Pitti.","https://example.com",4.6), P("Osteria All’Antico Vinaio","Panini-Kult.","https://example.com",4.5) ],
+        hotels:[ P("Hotel L’Orologio","Zentral, klassisch.","https://example.com",4.4), P("Portrait Firenze","Luxus an der Arno.","https://example.com",4.7) ],
+        spots:[ P("Galleria dell’Accademia","Michelangelos David.","https://example.com",4.8), P("Giardino Bardini","Garten & Aussicht.","https://example.com",4.6) ]
+      }
+    },
+    { id:"nordstil_hh", title:"NORDSTIL", date:"07.2021", city:"Hamburg", country:"Germany", lat:53.5586, lng:9.9836,
       address:"Hamburg Messe, Messeplatz 1, 20357 Hamburg, Germany", airport:"HAM — Hamburg Airport, 9 km",
       photos:[], description:"Nordstil präsentiert Lifestyle-, Deko- und Gifting-Sortimente. Relevante Impulse für POS-Konzepte und Markeninszenierung, mit regionaler und internationaler Ausstellerstruktur.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Bullerei","Bekanntes Restaurant in der Schanze.","https://example.com",4.5), P("NENI Hamburg","25hours-Hausmannskost modern.","https://example.com",4.4) ],
+        hotels:[ P("Mövenpick Hotel Sternschanze","Direkt an der Messe.","https://example.com",4.4), P("25hours HafenCity","Design & Storytelling.","https://example.com",4.5) ],
+        spots:[ P("Elbphilharmonie","Architektur-Ikone.","https://example.com",4.8), P("Planten un Blomen","Park & Wasserspiele.","https://example.com",4.6) ]
+      }
+    },
     { id:"frankfurt_2021", title:"Industry Fair Frankfurt", date:"08.2021", city:"Frankfurt", country:"Germany", lat:50.1109, lng:8.6821,
-      address:"Messe Frankfurt, Ludwig-Erhard-Anlage 1, 60327 Frankfurt am Main, Germany", airport:"FRA — Frankfurt Airport, 12 km",
+      address:"Messe Frankfurt, Ludwig-Erhard-Anlage 1, 60327 Frankfurt, Germany", airport:"FRA — Frankfurt Airport, 12 km",
       photos:[], description:"Branchenübergreifende Order- und Technologiethemen. Austausch mit Produzenten, Zertifizierern und Logistikpartnern.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-
-    // 2020
+      logos:[],
+      guide:{
+        food:[ P("Stanley Diamond","New German Cuisine.","https://example.com",4.6), P("Im Herzen Afrikas","Erlebnisgastronomie.","https://example.com",4.5) ],
+        hotels:[ P("Roomers","Design & Spa.","https://example.com",4.4), P("Meliá Frankfurt City","Neu, Skyline-Blick.","https://example.com",4.4) ],
+        spots:[ P("MMK Museum für Moderne Kunst","Kunst.","https://example.com",4.6), P("Palmengarten","Botanik.","https://example.com",4.6) ]
+      }
+    },
     { id:"ciff_cph", title:"CIFF", date:"02.2020", city:"Kopenhagen", country:"Denmark", lat:55.6761, lng:12.5683,
       address:"Bella Center, Center Blvd. 5, 2300 København, Denmark", airport:"CPH — Kastrup, 6 km",
       photos:[], description:"Die Copenhagen Int. Fashion Fair bündelt skandinavische Marken und Nachhaltigkeitsinitiativen. Klarheit, Funktion und Materialqualität prägen das Bild.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Kødbyens Fiskebar","Seafood im Meatpacking.","https://example.com",4.6), P("Høst","Nordische Küche, Design.","https://example.com",4.7) ],
+        hotels:[ P("Hotel SP34","Boutique im Zentrum.","https://example.com",4.4), P("AC Bella Sky","Direkt am Bella Center.","https://example.com",4.3) ],
+        spots:[ P("Louisiana Museum","Kunst & Meer.","https://example.com",4.8), P("Superkilen Park","Urban Design.","https://example.com",4.6) ]
+      }
+    },
     { id:"supreme_dus", title:"Supreme Women&Men", date:"07.2020", city:"Düsseldorf", country:"Germany", lat:51.2277, lng:6.7735,
       address:"B1 Fashion, Bennigsen-Platz 1, 40474 Düsseldorf, Germany", airport:"DUS — Düsseldorf Airport, 6 km",
       photos:[], description:"Women & Men Showrooms: Kollektionen, Qualitäten und Preispunkte im direkten Order-Gespräch.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-    { id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020", city:"Paris", country:"France", lat:48.864, lng:2.332, /* Carrousel du Louvre area */
+      logos:[],
+      guide:{
+        food:[ P("Brauerei Schumacher","Altbier & rheinische Küche.","https://example.com",4.5), P("Takumi","Ramen-Kult.","https://example.com",4.4) ],
+        hotels:[ P("me and all hotel","Design, Japanviertel.","https://example.com",4.4), P("25hours Das Tour","Französischer Twist.","https://example.com",4.5) ],
+        spots:[ P("Rheinpromenade","Spaziergang.","https://example.com",4.6), P("Kunstsammlung K20","Moderne Kunst.","https://example.com",4.7) ]
+      }
+    },
+    { id:"tranoi_paris_2020", title:"TRANOÏ", date:"01.2020", city:"Paris", country:"France", lat:48.864, lng:2.332,
       address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France", airport:"CDG — Charles de Gaulle, 27 km",
       photos:[], description:"Kuratiertes Designer-Line-up zwischen Kunst und Mode. Fokus auf Materialinnovationen, Verarbeitung und Markenidentität.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-
-    // 2019
-    { id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019", city:"London", country:"United Kingdom", lat:51.5072, lng:-0.1276,
+      logos:[],
+      guide:{
+        food:[ P("Verjus","Bistronomie, Weinbar.","https://example.com",4.6), P("Au Passage","Moderne kleine Gerichte.","https://example.com",4.5) ],
+        hotels:[ P("Hotel Louvre Saint-Honoré","Louvre-Nähe.","https://example.com",4.2), P("Hotel du Louvre","Hyatt – klassisch.","https://example.com",4.5) ],
+        spots:[ P("Tuilerien & Louvre","Spaziergang & Kunst.","https://example.com",4.8), P("Palais Royal","Gärten & Arkaden.","https://example.com",4.6) ]
+      }
+    },
+    { id:"topdrawer_ldn", title:"Top Drawer", date:"09.2019", city:"London", country:"United Kingdom", lat:51.495, lng:-0.210, /* Olympia */
       address:"Olympia London, Hammersmith Rd, London W14 8UX, UK", airport:"LHR — Heathrow, 20 km",
       photos:[], description:"Design-led Retail mit Fokus auf Interior, Gifting und Marken-Storytelling. Gute Quelle für Packaging- und VM-Inspiration.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-    { id:"whosnext_ldn", title:"Who’s Next?", date:"09.2019", city:"London", country:"United Kingdom", lat:51.5072, lng:-0.1276,
-      address:"ExCeL London, Royal Victoria Dock, 1 Western Gateway, London E16 1XL, UK", airport:"LCY — London City, 4 km",
-      photos:[], description:"Zeitgenössische Mode- & Accessoires-Schau mit Fokus auf Retail-Relevanz und Brand-Mix. (London-Edition)",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Dishoom Kensington","Bombay Café.","https://example.com",4.6), P("Sticks'n'Sushi","Nordic-Japan.","https://example.com",4.5) ],
+        hotels:[ P("K West Hotel","Shepherd’s Bush.","https://example.com",4.1), P("The Resident Kensington","Boutique.","https://example.com",4.4) ],
+        spots:[ P("Design Museum","Architektur & Design.","https://example.com",4.7), P("Holland Park Kyoto Garden","Ruhe-Spot.","https://example.com",4.6) ]
+      }
+    },
     { id:"tranoi_paris_2019", title:"TRANOÏ", date:"09.2019", city:"Paris", country:"France", lat:48.864, lng:2.332,
       address:"Carrousel du Louvre, 99 Rue de Rivoli, 75001 Paris, France", airport:"CDG — Charles de Gaulle, 27 km",
       photos:[], description:"Designer-Präsentationen mit präziser Material- und Prozesssprache. Schnittstelle zwischen Atelier, Industrie und Retail.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Septime","Moderne Küche.","https://example.com",4.8), P("Buvette Paris","Brunch & Wein.","https://example.com",4.5) ],
+        hotels:[ P("Hôtel des Grands Boulevards","Trendy.","https://example.com",4.5), P("Hôtel Crayon Rouge","Boutique.","https://example.com",4.3) ],
+        spots:[ P("Musée d’Orsay","Impressionismus.","https://example.com",4.8), P("Canal Saint-Martin","Cafés & Flanieren.","https://example.com",4.6) ]
+      }
+    },
     { id:"maisonobjet_paris_2019", title:"Maison&Objet", date:"01.2019", city:"Paris", country:"France", lat:48.972, lng:2.519,
       address:"Paris Nord Villepinte, ZAC Paris Nord 2, 93420 Villepinte, France", airport:"CDG — Charles de Gaulle, 8 km",
       photos:[], description:"Home & Object mit starkem Fokus auf Oberflächen, Handwerk und Farbklimata. Ideal für Mood- und Materialrecherchen.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-
-    // 2018
+      logos:[],
+      guide:{
+        food:[ P("Clown Bar","Natural Wine & Bistro.","https://example.com",4.6), P("Holybelly","Café-Klassiker.","https://example.com",4.5) ],
+        hotels:[ P("Okko Hotels Rosny","Budget-Design.","https://example.com",4.1), P("citizenM CDG","Airport-Hotel.","https://example.com",4.2) ],
+        spots:[ P("La Seine Musicale","Architektur, Konzerte.","https://example.com",4.6), P("Atelier des Lumières","Immersive Kunst.","https://example.com",4.7) ]
+      }
+    },
     { id:"micam_milan_2018", title:"MICAM", date:"09.2018", city:"Milano", country:"Italy", lat:45.518, lng:9.103,
       address:"Fiera Milano Rho, Strada Statale del Sempione 28, 20017 Rho MI, Italy", airport:"MXP — Milano Malpensa, 45 km",
       photos:[], description:"Leitmesse der Schuhindustrie. Komponenten, Obermaterialien und internationale Marken setzen Maßstäbe.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-    { id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      logos:[],
+      guide:{
+        food:[ P("Da Giacomo","Mailänder Klassiker.","https://example.com",4.6), P("Soulgreen","Plant-based.","https://example.com",4.5) ],
+        hotels:[ P("NH Collection Milano CityLife","Neu & modern.","https://example.com",4.5), P("UNAHOTELS Expo Fiera","Nähe Rho.","https://example.com",4.2) ],
+        spots:[ P("ADI Design Museum","Italienisches Design.","https://example.com",4.7), P("Brera","Gassen & Galerien.","https://example.com",4.6) ]
+      }
+    },
+    { id:"fashiontech_berlin", title:"FASHIONTECH", date:"07.2018", city:"Berlin", country:"Germany", lat:52.5, lng:13.375,
       address:"STATION Berlin, Luckenwalder Str. 4-6, 10963 Berlin, Germany", airport:"BER — Berlin Brandenburg, 20 km",
       photos:[], description:"Schnittstelle von Technologie und Mode: Digitalisierung, Automatisierung, neue Materialien und Prozesse.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-    { id:"seek_berlin", title:"SEEK", date:"01.2018", city:"Berlin", country:"Germany", lat:52.52, lng:13.405,
+      logos:[],
+      guide:{
+        food:[ P("Nobelhart & Schmutzig","Regional radikal.","https://example.com",4.7), P("Coda Dessert Dining","Dessert-Menü.","https://example.com",4.7) ],
+        hotels:[ P("Michelberger Hotel","Kreative Community.","https://example.com",4.5), P("25hours Bikini","Urban Jungle.","https://example.com",4.6) ],
+        spots:[ P("Hamburger Bahnhof","Moderne Kunst.","https://example.com",4.7), P("Tempelhofer Feld","Weite & Urbanität.","https://example.com",4.6) ]
+      }
+    },
+    { id:"seek_berlin", title:"SEEK", date:"01.2018", city:"Berlin", country:"Germany", lat:52.5, lng:13.45,
       address:"Arena Berlin, Eichenstr. 4, 12435 Berlin, Germany", airport:"BER — Berlin Brandenburg, 18 km",
       photos:[], description:"Zeitgenössische Fashion-Plattform mit Markenmix, Materialqualität und Order-Relevanz.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
-
-    // 2017
+      logos:[],
+      guide:{
+        food:[ P("Burgermeister","Ikonischer Burger.","https://example.com",4.5), P("Benedict","24/7 Breakfast.","https://example.com",4.4) ],
+        hotels:[ P("nhow Berlin","Musik-Hotel.","https://example.com",4.3), P("Hotel Orania.Berlin","Design & Jazz.","https://example.com",4.6) ],
+        spots:[ P("East Side Gallery","Mauer-Kunst.","https://example.com",4.7), P("Badeschiff","Spree-Pool.","https://example.com",4.5) ]
+      }
+    },
     { id:"panorama_berlin_2017", title:"Panorama Berlin", date:"01.2017", city:"Berlin", country:"Germany", lat:52.51, lng:13.375,
       address:"Messe Berlin, Messedamm 22, 14055 Berlin, Germany", airport:"BER — Berlin Brandenburg, 28 km",
       photos:[], description:"Fashion-Tradeshow mit breiter Segmentierung und guter Marktorientierung – nützlich für Preispunkte und Sortiment.",
-      logos:[], guide:{ food:[], hotels:[], spots:[] }, ratings:{} },
+      logos:[],
+      guide:{
+        food:[ P("Paris-Moskau","Klassiker am Park.","https://example.com",4.4), P("Katz Orange","Slow Food.","https://example.com",4.6) ],
+        hotels:[ P("Hotel AMANO Grand Central","Am Hbf.","https://example.com",4.3), P("Steigenberger am Kanzleramt","Business, Blick.","https://example.com",4.5) ],
+        spots:[ P("Siegessäule & Tiergarten","Spaziergang.","https://example.com",4.6), P("Bikini Berlin","Concept Mall.","https://example.com",4.5) ]
+      }
+    }
   ];
 
-  /* ---------- Popup-HTML (mit Icon-Infozeile) ---------- */
+  /* ---------- Popup-HTML ---------- */
   function popupHTML(pt){
     const title = `<div class="title-line"><h3 class="city-label">${pt.title}</h3></div>`;
-    const meta = `<div class="meta-line"><span>${pt.city}, ${pt.country}</span><span>${pt.date || ''}</span></div>`;
-    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : 'https://picsum.photos/1400/900?grayscale';
-
+    const meta  = `<div class="meta-line"><span>${pt.city}, ${pt.country}</span><span>${pt.date||''}</span></div>`;
     const infoRow = `
       <div class="info-row">
         <div class="info-item">
@@ -364,9 +496,8 @@
           <div class="label">Nearest Airport</div>
           <div class="sub">${pt.airport || '—'}</div>
         </div>
-      </div>
-    `;
-
+      </div>`;
+    const first = (pt.photos && pt.photos.length) ? safe(pt.photos[0]) : 'https://picsum.photos/1400/900?grayscale';
     const logos = (pt.logos && pt.logos.length)
       ? pt.logos.map(l => `<img src="${safe(l)}" alt="logo" />`).join('')
       : `<div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div><div class="logo-ph">LOGO</div>`;
@@ -376,12 +507,8 @@
       ${meta}
       <div class="gallery" data-id="${pt.id}">
         <img src="${first}" alt="${pt.city}" />
-        <button class="nav-btn nav-prev" aria-label="Previous">
-          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-        </button>
-        <button class="nav-btn nav-next" aria-label="Next">
-          <svg viewBox="0 0 24 24"><path fill="currentColor" d="m8.59 16.59 1.41 1.41L16 12l-5.99-6-1.42 1.41L13.17 12z"/></svg>
-        </button>
+        <button class="nav-btn nav-prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+        <button class="nav-btn nav-next" aria-label="Next"><svg viewBox="0 0 24 24"><path fill="currentColor" d="m8.59 16.59 1.41 1.41L16 12l-5.99-6-1.42 1.41L13.17 12z"/></svg></button>
       </div>
       <div class="desc">${pt.description || ''}</div>
       ${infoRow}
@@ -400,42 +527,35 @@
     const arr = (photos || []).map(safe);
     if(!galleryIndex.has(id)) galleryIndex.set(id, 0);
 
-    function render(){
-      if(!arr.length) return;
-      const i = galleryIndex.get(id) % arr.length;
-      img.src = arr[i];
-    }
-    function go(delta){
-      if(!arr.length) return;
-      let i = galleryIndex.get(id);
-      i = (i + delta + arr.length) % arr.length;
-      galleryIndex.set(id, i);
-      render();
-    }
+    function render(){ if(arr.length){ img.src = arr[ galleryIndex.get(id) % arr.length ]; } }
+    function go(d){ if(!arr.length) return; galleryIndex.set(id, (galleryIndex.get(id)+d+arr.length)%arr.length); render(); }
+
     prev.addEventListener('click', e => { e.stopPropagation(); go(-1); });
     next.addEventListener('click', e => { e.stopPropagation(); go(1); });
 
-    // Touch-Swipe
-    let startX = null;
-    container.querySelector('.gallery').addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
-    container.querySelector('.gallery').addEventListener('touchend', e => {
-      if(startX === null) return;
-      const dx = e.changedTouches[0].clientX - startX;
-      if(Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
-      startX = null;
+    let startX=null;
+    container.querySelector('.gallery').addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; }, {passive:true});
+    container.querySelector('.gallery').addEventListener('touchend',   e=>{
+      if(startX===null) return;
+      const dx=e.changedTouches[0].clientX-startX; if(Math.abs(dx)>40) go(dx<0?1:-1); startX=null;
     });
 
     render();
   }
 
-  /* ---------- Legend mit Ratings ---------- */
+  /* ---------- Legend & Ratings ---------- */
+  function stars(n=4.5){
+    const full=Math.floor(n), half=(n-full)>=0.5?1:0, empty=5-full-half;
+    const star = (fill)=>`<svg viewBox="0 0 24 24"><path fill="${fill?'#111':'#c9c4ba'}" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    const halfStar = half?`<svg viewBox="0 0 24 24"><defs><linearGradient id="half"><stop offset="50%" stop-color="#111"/><stop offset="50%" stop-color="#c9c4ba"/></linearGradient></defs><path fill="url(#half)" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`:'';
+    return `<span class="stars">${Array(full).fill(0).map(()=>star(true)).join('')}${halfStar}${Array(empty).fill(0).map(()=>star(false)).join('')}</span>`;
+  }
   function updateLegend(pt){
     const meta = document.getElementById('legend-meta');
     const food = document.getElementById('legend-food');
     const hotels = document.getElementById('legend-hotels');
     const spots = document.getElementById('legend-spots');
-
-    meta.textContent = `${pt.city}, ${pt.country} — ${pt.title} (${pt.date || ''})`;
+    meta.textContent = `${pt.city}, ${pt.country} — ${pt.title} (${pt.date||''})`;
 
     function fill(listEl, arr){
       listEl.innerHTML = '';
@@ -449,15 +569,20 @@
         listEl.appendChild(li);
       });
     }
-
     fill(food, pt.guide?.food);
     fill(hotels, pt.guide?.hotels);
     fill(spots, pt.guide?.spots);
   }
 
+  /* ---------- Zeitstrahl: aktives Jahr hervorheben ---------- */
+  function highlightYear(yearStr){
+    const years = document.querySelectorAll('.timeline .year');
+    years.forEach(y => y.classList.toggle('active', y.dataset.y === yearStr));
+  }
+
   /* ---------- Flugrouten: chronologisch nach Klicks ---------- */
   const HAMBURG = [53.5511, 9.9937];
-  let lastPoint = null; // erster Klick startet von Hamburg
+  let lastPoint = null; // erster Klick startet ab Hamburg
   const routeLayer = L.layerGroup().addTo(map);
 
   function drawSegment(fromLatLng, toLatLng){
@@ -468,10 +593,12 @@
   }
 
   /* ---------- Marker & Popups ---------- */
+  const markers = [];
   points.forEach(pt => {
     const marker = L.marker([pt.lat, pt.lng], { icon: createPinIcon(), custom:{pt} }).addTo(map);
+    markers.push(marker);
     marker.bindTooltip(`${pt.city}`, {permanent:false, direction:'top', offset:[0,-12], opacity:0.95});
-    marker.bindPopup(popupHTML(pt), { maxWidth: 760, closeOnClick: true, autoClose: true });
+    marker.bindPopup(popupHTML(pt), { maxWidth: 800, closeOnClick: true, autoClose: true });
 
     marker.on('popupopen', (e) => {
       const el = e.popup.getElement();
@@ -481,7 +608,11 @@
       });
       updateLegend(pt);
 
-      // Route: erster Klick von Hamburg, danach vom letzten Ziel
+      // Jahr vom Zeitstrahl aktiv schalten
+      const year = (pt.date||'').slice(-4);
+      if(year) highlightYear(year);
+
+      // Flugroute: erster Klick ab HAM, dann jeweils letzte Station -> neue Station
       const from = lastPoint ? lastPoint : HAMBURG;
       drawSegment(from, [pt.lat, pt.lng]);
       lastPoint = [pt.lat, pt.lng];
